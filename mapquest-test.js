@@ -1,15 +1,8 @@
-var driveInfo = {
-  driveTime: ""
-};
-
-query("41.121264, -111.919899", "41.169600, -112.014570");
-
-function query(latlon1, latlon2) {
-  axios.get('http://www.mapquestapi.com/directions/v2/route?key=EQrA7i7TLmnP9B1ZFC6CRQgsZVFl6XGz&from=' + latlon1 + '&to=' + latlon2 + '')
+function getMapData(from, to) {
+  axios.get('http://www.mapquestapi.com/directions/v2/route?key=EQrA7i7TLmnP9B1ZFC6CRQgsZVFl6XGz&from=' + from + '&to=' + to + '')
     .then(function (res) {
       console.log("res:", res);
-      driveInfo.driveTime = res.data.route.realTime;
-      console.log(driveInfo.driveTime);
+      return res.data.route.realTime;
     })
     .catch(function (err) {
       console.log(err);

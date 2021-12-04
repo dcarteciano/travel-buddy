@@ -19,7 +19,7 @@
       <p class="subtitle">
         How many hours do you have?
       </p>
-      <input class="input is-primary" type="number" placeholder="# of Hours">
+      <input id="hours-input" class="input is-primary" type="number" placeholder="# of Hours">
 
       <p class="subtitle">
         Click to find events in your area
@@ -30,7 +30,11 @@
         </span>
         <span>Find My Location</span>
       </button>
-      <div class="container">
+      <button id= "add-item" class="button is-success">
+        <span>Add item</span>
+      </button>
+      <div id="events">
+        <!-- List Item Container Example -->
         <div class="notification is-primary">
           <div class="columns">
             <div class="column is-narrow">
@@ -42,24 +46,24 @@
             <div class="column">
               <div class="box">
                 <p class="title is-5">Event Info</p>
-                <p class="subtitle">Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid hic nostrum at molestias dolores deserunt quidem pariatur similique
-
+                <p class="subtitle">Event Sub Info: Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid hic nostrum at molestias dolores deserunt quidem pariatur similique
               </div>
             </div>
           </div>
         </div>
       </div>
-      
-      
+
     </div>
   </section>
 
 
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <script src="./current-location-test.js"></script>
-  <script src="./tm-test.js"></script>
-  <script src="./mapquest-test.js"></script>
+  <script src="./assets/js/current-location-test.js"></script>
+  <script src="./assets/js/tm-test.js"></script>
+  <script src="./assets/js/mapquest-test.js"></script>
+  <script src="./assets/js/list-item.js"></script>
+  
 
 </body>
 </html>

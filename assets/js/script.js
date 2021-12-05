@@ -38,8 +38,7 @@ function addListEl(title, time, info, subInfo) {
 
 addListEl(title, time, info, subInfo);
 
-// from and to can either be "lat,lon" or an adress
-// testing from console
+// from and to can either be "lat,lon" or an address
 function getMapData(from, to) {
   axios.get('http://www.mapquestapi.com/directions/v2/route?key=EQrA7i7TLmnP9B1ZFC6CRQgsZVFl6XGz&from=' + from + '&to=' + to + '')
     .then(function (res) {
@@ -62,6 +61,7 @@ function getMapData(from, to) {
       console.log("could not connect to mapquestapi.com");
     })
 }
+
 // ticket master api to get events nearby and long/lat
 function getApi() {
   var requestUrl = 'https://app.ticketmaster.com/discovery/v2/events.json?classificationName=music&dmaId=324&apikey=OWIi7laz1qDwxQmUKHndhZXCYa98oavA';
@@ -88,3 +88,26 @@ function getApi() {
 });
 
 }
+
+function getCurrentLocation() {
+
+  function success(position) {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+
+    return [latitude,longitude];
+  }
+
+  function error() {
+    console.log('Unable to retrieve your location');
+  }
+
+  if (!navigator.geolocation) {
+    console.log('Geolocation is not supported by your browser');
+  } else {
+    navigator.geolocation.getCurrentPosition(success, error);
+  }
+
+}
+
+document.querySelector('#find-me').addEventListener('click', geoFindMe);

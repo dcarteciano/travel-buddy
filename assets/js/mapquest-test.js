@@ -29,7 +29,7 @@ function geoFindMe() {
     const latitude = position.coords.latitude;
     const longitude = position.coords.longitude;
 
-    getMapData([latitude, longitude], "salt lake city"); //test location
+    return [latitude,longitude];
   }
 
   function error() {

@@ -7,34 +7,39 @@ var cat = document.querySelector('#cat-input');
 // var info = 'Event Info2';
 // var subInfo = 'Event Sub Info2: Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid hic nostrum at molestias dolores deserunt quidem pariatur similique';
 // var id = 123456;
+var currentLatitude;
+var curentLongitude;
 
-function addListEl(title, time, info, subInfo, id) {
 
-    // create a container for event
-    var listEl = $('<div>');
-    listEl.addClass('notification is-primary');
-    var listColEl = $('<div>');
-    listColEl.addClass('columns').appendTo(listEl);
-    var listFirstColEl = $('<div>');
-    listFirstColEl.addClass('column is-narrow').appendTo(listColEl);
-    var listFirstColBox = $('<div>');
-    listFirstColBox.addClass('box').attr('style', 'width: 200px;').appendTo(listFirstColEl);
-    var listEventTitle = $('<p>');
-    listEventTitle.addClass('title is-5').text(title).appendTo(listFirstColBox);
-    var listEventTime = $('<p>');
-    listEventTime.addClass('subtitle').text(time).appendTo(listFirstColBox);
-    var listEventDriveTime = $('<button>');
-    listEventDriveTime.addClass('button is-success').attr('id','drive-time-' + id).text("Drive Time").appendTo(listFirstColBox);
-    var listSecColEl = $('<div>');
-    listSecColEl.addClass('column').appendTo(listColEl);
-    var listSecColBox = $('<div>');
-    listSecColBox.addClass('box').appendTo(listSecColEl);
-    var listEventInfo = $('<p>');
-    listEventInfo.addClass('title is-5').text(info).appendTo(listSecColBox);
-    var listEventSubInfo = $('<p>');
-    listEventSubInfo.addClass('subtitle').text(subInfo).appendTo(listSecColBox);
+function addListEl(title, time, info, subInfo, lat, long) {
 
-    listEl.appendTo(events);
+  var driveTime = getMapData(currentLatitude + ',' + curentLongitude, lat + ',' + long);
+  // var enoughTime = enoughTime(driveTime, startTime);
+  // create a container for event
+  var listEl = $('<div>');
+  listEl.addClass('notification is-primary');
+  var listColEl = $('<div>');
+  listColEl.addClass('columns').appendTo(listEl);
+  var listFirstColEl = $('<div>');
+  listFirstColEl.addClass('column is-narrow').appendTo(listColEl);
+  var listFirstColBox = $('<div>');
+  listFirstColBox.addClass('box').attr('style', 'width: 200px;').appendTo(listFirstColEl);
+  var listEventTitle = $('<p>');
+  listEventTitle.addClass('title is-5').text(title).appendTo(listFirstColBox);
+  var listEventTime = $('<p>');
+  listEventTime.addClass('subtitle').text(time).appendTo(listFirstColBox);
+  var listEventDriveTime = $('<p>');
+  listEventDriveTime.addClass('subtitle').text('Can you make it?' + driveTime).appendTo(listFirstColBox);
+  var listSecColEl = $('<div>');
+  listSecColEl.addClass('column').appendTo(listColEl);
+  var listSecColBox = $('<div>');
+  listSecColBox.addClass('box').appendTo(listSecColEl);
+  var listEventInfo = $('<p>');
+  listEventInfo.addClass('title is-5').text(info).appendTo(listSecColBox);
+  var listEventSubInfo = $('<p>');
+  listEventSubInfo.addClass('subtitle').text(subInfo).appendTo(listSecColBox);
+
+  listEl.appendTo(events);
 
 };
 
@@ -74,13 +79,15 @@ function getApi(cat, lat, long) {
     '&radius=100&unit=miles' + 
     '&apikey=OWIi7laz1qDwxQmUKHndhZXCYa98oavA';
 
-   
   axios.get(requestUrl)
     .then(function (res) {
       console.log('response', res);
       var eventArray = res.data._embedded.events;
       console.log('eventArray', eventArray);
       buildList(eventArray);
+    })
+    .catch(function (err) {
+      console.log(err);
     });
 }
 
@@ -89,20 +96,24 @@ function buildList(eventArray){
   for (var i = 0; i < eventArray.length; i++) {
     var eventTitle = eventArray[i].name;
     var eventTime = eventArray[i].dates.start.dateTime;
-    var eventInfo = eventArray[i].url;
-    // var eventLat = eventArray[i]._embedded.venues.location.latitude;
-    // var eventLong = eventArray[i]._embedded.venues.location.longitude;
-    var eventId = eventArray[i].id;
-    addListEl(eventTitle, eventTime, eventInfo, [i], eventId);
+    var eventInfo = eventArray[i]._embedded.venues[0].name;
+    var eventSubInfo = eventArray[i].url;
+    var eventLat = eventArray[i]._embedded.venues[0].location.latitude;
+    var eventLong = eventArray[i]._embedded.venues[0].location.longitude;
+    // var arrival = enoughTime(driveTime, startTime)
+    addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, eventLat, eventLong);
+
   }
 }
 
 function getCurrentPos() {
+  currentLatitude = 0;
+  curentLongitude = 0;
 
   function success(position) {
-    var latitude = position.coords.latitude;
-    var longitude = position.coords.longitude;
-    getApi('music', latitude, longitude);
+    currentLatitude = position.coords.latitude;
+    curentLongitude = position.coords.longitude;
+    getApi('music', currentLatitude, curentLongitude);
   }
 
   function error() {
@@ -118,7 +129,7 @@ function getCurrentPos() {
 }
 // function to check if you have enough time to get to an event
 // input is the drive time in seconds and the start time of the event.
-function enoughTime (driveTime, startTime){
+function enoughTime(driveTime, startTime){
   var arriveTime = moment().add(driveTime, 'seconds').format();
   //outputs false if the arival time is after the event start time
   if (moment(arriveTime).isAfter(startTime)){

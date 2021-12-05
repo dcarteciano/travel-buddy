@@ -22,16 +22,35 @@ function geoFindMe() {
       return response.json();
     })
     .then(function (data) {
-  
+
       var eventArray = data._embedded.events;
 
       for (var i = 0; i < eventArray.length; i++) {
         var eventLong = eventArray[i]._embedded.venues[0].location.longitude;
         var eventLat = eventArray[i]._embedded.venues[0].location.latitude;
-        
-        console.log(eventLong)
+        console.log(eventLat)
+        console.log(true)
+        // if (latitude < eventLat++ && latitude > eventLat--) {
+          
+        // } else {
+        //   var response = "no events"
+
+        // }
+
+
+        // if(longitude > eventLong++ && longitude < eventLong--){
+
+        //   console.log('yes')
+
+        // }
 
       }
+
+
+
+
+      
+
 
 
   });

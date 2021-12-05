@@ -63,7 +63,11 @@ function getMapData(from, to) {
     })
 }
 // ticket master api to get events nearby and long/lat
+<<<<<<< HEAD
 function getApi() { 
+=======
+function getApi() {
+>>>>>>> develop
   var requestUrl = 'https://app.ticketmaster.com/discovery/v2/events.json?classificationName=music&dmaId=324&apikey=OWIi7laz1qDwxQmUKHndhZXCYa98oavA';
   fetch(requestUrl)
   .then(function (response){
@@ -71,11 +75,17 @@ function getApi() {
   })
   .then(function (data) {
     console.log(data);
+<<<<<<< HEAD
 
     var eventArray = data._embedded.events;
     console.log(eventArray)
 
 
+=======
+     var eventArray = data._embedded.events;
+    console.log(eventArray)
+
+>>>>>>> develop
     for (var i = 0; i < eventArray.length; i++) {
       var eventInfo = document.getElementById("event")
       eventInfo.textContent += eventArray[i].name;
@@ -88,5 +98,10 @@ function getApi() {
     }
 
 });
+<<<<<<< HEAD
 }
 
+=======
+
+}
+>>>>>>> develop

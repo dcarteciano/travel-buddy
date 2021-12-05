@@ -5,6 +5,12 @@ var time = 'Start Time2';
 var info = 'Event Info2';
 var subInfo = 'Event Sub Info2: Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid hic nostrum at molestias dolores deserunt quidem pariatur similique';
 
+var position = {
+  from: "",
+  to: ""
+};
+
+
 function addListEl(title, time, info, subInfo) {
 
   addButton.addEventListener("click", function () {
@@ -38,29 +44,6 @@ function addListEl(title, time, info, subInfo) {
 
 addListEl(title, time, info, subInfo);
 
-// from and to can either be "lat,lon" or an adress
-function getMapData(from, to) {
-  axios.get('https://www.mapquestapi.com/directions/v2/route?key=EQrA7i7TLmnP9B1ZFC6CRQgsZVFl6XGz&from=' + from + '&to=' + to + '')
-    .then(function (res) {
-      console.log("mapquest:", res.data);
-      if (res.data.route.realTime > 0) {
-        if (res.data.route.realTime < 10000000) {
-          console.log("Drive time: " + res.data.route.realTime);
-          return res.data.route.realTime; // returns drivetime data in seconds based off of realtime traffic conditions
-        }
-        else {
-          console.log("realtime data unavailable", "Drive time: " + res.data.route.time);
-          return res.data.route.time; // if realtime data is unavailable, returns calculated drivetime time in seconds
-        }
-      }
-      else {
-        modal("Error", "Could not find route with given locations. Try a different starting address");
-      }
-    })
-    .catch(function (err) {
-      modal("Error", "Could not connect to mapquestapi.com");
-    })
-}
 
 // ticket master api to get events nearby and long/lat
 function getApi() {
@@ -85,8 +68,6 @@ function getApi() {
     });
 }
 
-// 
-var currentPosition;
 
 function getCurrentPos() {
 
@@ -94,7 +75,7 @@ function getCurrentPos() {
     const latitude = position.coords.latitude;
     const longitude = position.coords.longitude;
 
-    currentPosition = [latitude, longitude];
+    position.from = [latitude, longitude];
   }
 
   function error() {
@@ -108,8 +89,34 @@ function getCurrentPos() {
   }
 }
 
+
+// from and to can either be "lat,lon" or an adress
+function getMapData(from, to) {
+  axios.get('https://www.mapquestapi.com/directions/v2/route?key=EQrA7i7TLmnP9B1ZFC6CRQgsZVFl6XGz&from=' + from + '&to=' + to + '')
+    .then(function (res) {
+      console.log("mapquest:", res.data);
+      if (res.data.route.realTime > 0) {
+        if (res.data.route.realTime < 10000000) {
+          console.log("Drive time: " + res.data.route.realTime);
+          return res.data.route.realTime; // returns drivetime data in seconds based off of realtime traffic conditions
+        }
+        else {
+          console.log("realtime data unavailable", "Drive time: " + res.data.route.time);
+          return res.data.route.time; // if realtime data is unavailable, returns calculated drivetime time in seconds
+        }
+      }
+      else {
+        modal("Error", "Could not find route with given locations. Try a different starting address");
+      }
+    })
+    .catch(function (err) {
+      modal("Error", "Could not connect to mapquestapi.com");
+    })
+}
+
+
 // modal use
-// for a simple message use a string for title and info
+// for a simple message use a string for title and info 
 // for a form isForm needs to be true
 function modal(title, info, isForm, btnText) {
   var content = $(".modal-content");
@@ -119,8 +126,8 @@ function modal(title, info, isForm, btnText) {
     var formEl = $("<form>");
     var labelEl = $("<label>").text(title);
     var infoEL = $("<p>").text(info);
-    var inputEl = $("<input>")
-    var btnEl = $("<button>").addClass("button").text(btnText);
+    var inputEl = $("<input>");
+    var btnEl = $("<button>").addClass("button is-success").text(btnText);
     // TO ADD: on btnEl click use input data and toggleModal
     formEl.append(labelEl, infoEL, inputEl, btnEl);
     content.append(formEl);
@@ -146,8 +153,11 @@ function modal(title, info, isForm, btnText) {
   }
 
   $(".modal-close").on("click", toggleModal);
-  
+
   toggleModal();
 }
 
 document.querySelector('#find-me').addEventListener('click', getCurrentPos);
+document.querySelector("#address").addEventListener("click", function () {
+  modal("Enter a starting address", "", true, "Submit");
+});

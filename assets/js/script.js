@@ -11,7 +11,7 @@ var modal = {
 
 function addListEl(title, time, info, subInfo) {
 
-  addButton.addEventListener("click", function (){
+  addButton.addEventListener("click", function () {
 
     // create a container for event
     var listEl = $('<div>');
@@ -34,7 +34,7 @@ function addListEl(title, time, info, subInfo) {
     listEventInfo.addClass('title is-5').text(info).appendTo(listSecColBox);
     var listEventSubInfo = $('<p>');
     listEventSubInfo.addClass('subtitle').text(subInfo).appendTo(listSecColBox);
-    
+
     listEl.appendTo(events);
     console.log("test");
   });
@@ -42,7 +42,7 @@ function addListEl(title, time, info, subInfo) {
 
 addListEl(title, time, info, subInfo);
 
-// from and to can either be "lat,lon" or an address
+// from and to can either be "lat,lon" or an adress
 function getMapData(from, to) {
   axios.get('http://www.mapquestapi.com/directions/v2/route?key=EQrA7i7TLmnP9B1ZFC6CRQgsZVFl6XGz&from=' + from + '&to=' + to + '')
     .then(function (res) {
@@ -72,36 +72,32 @@ function getMapData(from, to) {
 function getApi() {
   var requestUrl = 'https://app.ticketmaster.com/discovery/v2/events.json?classificationName=music&dmaId=324&apikey=OWIi7laz1qDwxQmUKHndhZXCYa98oavA';
   fetch(requestUrl)
-  .then(function (response){
-    return response.json();
-  })
-  .then(function (data) {
-    console.log(data);
-     var eventArray = data._embedded.events;
-    console.log(eventArray)
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      console.log(data);
+      var eventArray = data._embedded.events;
+      console.log(eventArray)
 
-    for (var i = 0; i < eventArray.length; i++) {
-      var eventInfo = document.getElementById("event")
-      eventInfo.textContent += eventArray[i].name;
-    }
-    for (var i = 0; i < eventArray.length; i++) {
-      var eventLong = eventArray[i]._embedded.venues[0].location.longitude;
-      var eventLat = eventArray[i]._embedded.venues[0].location.latitude;
-
-
-    }
-
-});
-
+      for (var i = 0; i < eventArray.length; i++) {
+        var eventInfo = document.getElementById("event")
+        eventInfo.textContent += eventArray[i].name;
+      }
+      for (var i = 0; i < eventArray.length; i++) {
+        var eventLong = eventArray[i]._embedded.venues[0].location.longitude;
+        var eventLat = eventArray[i]._embedded.venues[0].location.latitude;
+      }
+    });
 }
 
-function getCurrentLocation() {
+function getCurrentPos() {
 
   function success(position) {
     const latitude = position.coords.latitude;
     const longitude = position.coords.longitude;
 
-    return [latitude,longitude];
+    return [latitude, longitude];
   }
 
   function error() {

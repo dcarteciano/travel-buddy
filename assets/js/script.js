@@ -62,3 +62,29 @@ function getMapData(from, to) {
       console.log("could not connect to mapquestapi.com");
     })
 }
+// ticket master api to get events nearby and long/lat
+function getApi() {
+  var requestUrl = 'https://app.ticketmaster.com/discovery/v2/events.json?classificationName=music&dmaId=324&apikey=OWIi7laz1qDwxQmUKHndhZXCYa98oavA';
+  fetch(requestUrl)
+  .then(function (response){
+    return response.json();
+  })
+  .then(function (data) {
+    console.log(data);
+     var eventArray = data._embedded.events;
+    console.log(eventArray)
+
+    for (var i = 0; i < eventArray.length; i++) {
+      var eventInfo = document.getElementById("event")
+      eventInfo.textContent += eventArray[i].name;
+    }
+    for (var i = 0; i < eventArray.length; i++) {
+      var eventLong = eventArray[i]._embedded.venues[0].location.longitude;
+      var eventLat = eventArray[i]._embedded.venues[0].location.latitude;
+
+
+    }
+
+});
+
+}

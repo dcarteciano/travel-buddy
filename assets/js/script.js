@@ -1,5 +1,7 @@
 var addButton = document.querySelector('#add-item');
 var events = document.querySelector('#events');
+var hours = document.querySelector('#hours-input');
+var cat = document.querySelector('#cat-input');
 var title = 'Event Title2';
 var time = 'Start Time2';
 var info = 'Event Info2';
@@ -7,8 +9,6 @@ var subInfo = 'Event Sub Info2: Lorem ipsum dolor sit amet consectetur adipisici
 var id = 123456;
 
 function addListEl(title, time, info, subInfo, id) {
-
-  addButton.addEventListener("click", function () {
 
     // create a container for event
     var listEl = $('<div>');
@@ -35,13 +35,8 @@ function addListEl(title, time, info, subInfo, id) {
     listEventSubInfo.addClass('subtitle').text(subInfo).appendTo(listSecColBox);
 
     listEl.appendTo(events);
-    console.log("test");
-  });
+
 };
-
-addListEl(title, time, info, subInfo, id);
-
-
 
 // from and to can either be "lat,lon" or an adress
 function getMapData(from, to) {
@@ -70,35 +65,44 @@ function getMapData(from, to) {
 }
 
 // ticket master api to get events nearby and long/lat
-function getApi() {
-  var requestUrl = 'https://app.ticketmaster.com/discovery/v2/events.json?classificationName=music&dmaId=324&apikey=OWIi7laz1qDwxQmUKHndhZXCYa98oavA';
-  fetch(requestUrl)
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (data) {
-      console.log(data);
-      var eventArray = data._embedded.events;
-      console.log(eventArray)
+function getApi(cat, lat, long) {
+  var requestUrl = 
+    'https://app.ticketmaster.com/discovery/v2/events.json?classificationName=' + 
+    cat + 
+    '&latlong=' + 
+    lat + ',' + long + 
+    '&radius=100&unit=miles' + 
+    '&apikey=OWIi7laz1qDwxQmUKHndhZXCYa98oavA';
 
-      for (var i = 0; i < eventArray.length; i++) {
-        var eventInfo = document.getElementById("event")
-        eventInfo.textContent += eventArray[i].name;
-      }
-      for (var i = 0; i < eventArray.length; i++) {
-        var eventLong = eventArray[i]._embedded.venues[0].location.longitude;
-        var eventLat = eventArray[i]._embedded.venues[0].location.latitude;
-      }
+   
+  axios.get(requestUrl)
+    .then(function (res) {
+      console.log('response', res);
+      var eventArray = res.data._embedded.events;
+      console.log('eventArray', eventArray);
+      buildList(eventArray);
     });
+}
+
+function buildList(eventArray){
+
+  for (var i = 0; i < eventArray.length; i++) {
+    var eventTitle = eventArray[i].name;
+    var eventTime = eventArray[i].dates.start.dateTime;
+    var eventInfo = eventArray[i].url;
+    // var eventLat = eventArray[i]._embedded.venues.location.latitude;
+    // var eventLong = eventArray[i]._embedded.venues.location.longitude;
+    var eventId = eventArray[i].id;
+    addListEl(eventTitle, eventTime, eventInfo, [i], eventId);
+  }
 }
 
 function getCurrentPos() {
 
   function success(position) {
-    const latitude = position.coords.latitude;
-    const longitude = position.coords.longitude;
-
-    return [latitude, longitude];
+    var latitude = position.coords.latitude;
+    var longitude = position.coords.longitude;
+    getApi('music', latitude, longitude);
   }
 
   function error() {
@@ -112,5 +116,19 @@ function getCurrentPos() {
   }
 
 }
+// function to check if you have enough time to get to an event
+// input is the drive time in seconds and the start time of the event.
+function enoughTime (driveTime, startTime){
+  var arriveTime = moment().add(driveTime, 'seconds').format();
+  //outputs false if the arival time is after the event start time
+  if (moment(arriveTime).isAfter(startTime)){
+    return false;
+    //outputs true if it starts after the arrival time
+  } else {
+    return true;
+  }
+}
 
-document.querySelector('#find-me').addEventListener('click', geoFindMe);
+// enoughTime(600, '2021-12-05T14:39:45-07:00');
+
+document.querySelector('#find-me').addEventListener('click', getCurrentPos);

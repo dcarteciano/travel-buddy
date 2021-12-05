@@ -2,11 +2,11 @@ var addButton = document.querySelector('#add-item');
 var events = document.querySelector('#events');
 var hours = document.querySelector('#hours-input');
 var cat = document.querySelector('#cat-input');
-var title = 'Event Title2';
-var time = 'Start Time2';
-var info = 'Event Info2';
-var subInfo = 'Event Sub Info2: Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid hic nostrum at molestias dolores deserunt quidem pariatur similique';
-var id = 123456;
+// var title = 'Event Title2';
+// var time = 'Start Time2';
+// var info = 'Event Info2';
+// var subInfo = 'Event Sub Info2: Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid hic nostrum at molestias dolores deserunt quidem pariatur similique';
+// var id = 123456;
 
 function addListEl(title, time, info, subInfo, id) {
 

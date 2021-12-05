@@ -4,8 +4,9 @@ var title = 'Event Title2';
 var time = 'Start Time2';
 var info = 'Event Info2';
 var subInfo = 'Event Sub Info2: Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid hic nostrum at molestias dolores deserunt quidem pariatur similique';
+var id = 123456;
 
-function addListEl(title, time, info, subInfo) {
+function addListEl(title, time, info, subInfo, id) {
 
   addButton.addEventListener("click", function (){
 
@@ -22,6 +23,8 @@ function addListEl(title, time, info, subInfo) {
     listEventTitle.addClass('title is-5').text(title).appendTo(listFirstColBox);
     var listEventTime = $('<p>');
     listEventTime.addClass('subtitle').text(time).appendTo(listFirstColBox);
+    var listEventDriveTime = $('<button>');
+    listEventDriveTime.addClass('button is-success').attr('id','drive-time-' + id).text("Drive Time").appendTo(listFirstColBox);
     var listSecColEl = $('<div>');
     listSecColEl.addClass('column').appendTo(listColEl);
     var listSecColBox = $('<div>');
@@ -36,7 +39,9 @@ function addListEl(title, time, info, subInfo) {
   });
 };
 
-addListEl(title, time, info, subInfo);
+addListEl(title, time, info, subInfo, id);
+
+
 
 // from and to can either be "lat,lon" or an adress
 // testing from console

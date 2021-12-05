@@ -127,9 +127,10 @@ function modal(title, info, isForm, btnText) {
     var labelEl = $("<label>").text(title);
     var infoEL = $("<p>").text(info);
     var inputEl = $("<input>");
-    var btnEl = $("<button>").addClass("button is-success").text(btnText);
+    var btnEl = $("<button>").addClass("button is-success").attr("id", "address-submit").text(btnText);
     // TO ADD: on btnEl click use input data and toggleModal
     formEl.append(labelEl, infoEL, inputEl, btnEl);
+    formEl.on("click", formSubmitHandler);
     content.append(formEl);
   }
   // Displays Message
@@ -155,6 +156,13 @@ function modal(title, info, isForm, btnText) {
   $(".modal-close").on("click", toggleModal);
 
   toggleModal();
+}
+
+function formSubmitHandler(event) {
+  event.preventDefault();
+  if (event.target.id === "address-submit") {
+    console.log(event);
+  }
 }
 
 document.querySelector('#find-me').addEventListener('click', getCurrentPos);

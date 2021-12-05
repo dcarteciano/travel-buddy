@@ -4,10 +4,6 @@ var title = 'Event Title2';
 var time = 'Start Time2';
 var info = 'Event Info2';
 var subInfo = 'Event Sub Info2: Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid hic nostrum at molestias dolores deserunt quidem pariatur similique';
-var modal = {
-  display: $(".modal"),
-  content: $(".modal-content")
-}
 
 function addListEl(title, time, info, subInfo) {
 
@@ -44,7 +40,7 @@ addListEl(title, time, info, subInfo);
 
 // from and to can either be "lat,lon" or an adress
 function getMapData(from, to) {
-  axios.get('http://www.mapquestapi.com/directions/v2/route?key=EQrA7i7TLmnP9B1ZFC6CRQgsZVFl6XGz&from=' + from + '&to=' + to + '')
+  axios.get('https://www.mapquestapi.com/directions/v2/route?key=EQrA7i7TLmnP9B1ZFC6CRQgsZVFl6XGz&from=' + from + '&to=' + to + '')
     .then(function (res) {
       console.log("mapquest:", res.data);
       if (res.data.route.realTime > 0) {
@@ -58,13 +54,11 @@ function getMapData(from, to) {
         }
       }
       else {
-        modal.addClass("is-active");
-        modal.append($("<p>").text("Could not find route"));
-        console.log("Could not find route between given locations");
+        modal("Error", "Could not find route with given locations");
       }
     })
     .catch(function (err) {
-      console.log("could not connect to mapquestapi.com");
+      modal("Error", "Could not connect to mapquestapi.com");
     })
 }
 
@@ -109,7 +103,39 @@ function getCurrentPos() {
   } else {
     navigator.geolocation.getCurrentPosition(success, error);
   }
-
 }
 
-document.querySelector('#find-me').addEventListener('click', geoFindMe);
+function modal(title, info, isForm, btnText) {
+  content = $(".modal-content");
+
+  if (isForm) {
+    formEl = $("<form>");
+    labelEl = $("<label>").text(title);
+    infoEL = $("<p>").text(info);
+    inputEl = $("<input>")
+    btnEl = $("<button>").text(btnText);
+    formEl.append(labelEl, infoEL, inputEl, btnEl);
+    content.append(formEl);
+  }
+  else {
+    textEl = $("<p>");
+    titleEl = $("<strong>").text(title);
+    infoEl = $("<p>").text(info);
+  }
+  
+  function toggleModal() {
+    if (modal.display.hasClass("is-active")) {
+      modal.display.removeClass("is-active")
+      modal.content.empty();
+    }
+    else {
+      modal.display.addClass("is-active");
+    }
+  }
+
+  $(".modal-close").on("click".toggleModal);
+
+  toggleModal();
+}
+
+document.querySelector('#find-me').addEventListener('click', getCurrentPos);

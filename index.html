@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://kit.fontawesome.com/f2f67a27b7.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+
+</head>
+<body>
+  <section class="section">
+    <div class="container">
+      <h1 class="title">
+        Event Buddy
+      </h1>
+      <p class="subtitle">
+        How many hours do you have?
+      </p>
+      <input id="hours-input" class="input is-primary" type="number" placeholder="# of Hours">
+
+      <p class="subtitle">
+        Click to find events in your area
+      </p>
+      <button id= "find-me" class="button is-success">
+        <span class="icon is-small">
+          <i class="fas fa-location-arrow"></i>
+        </span>
+        <span>Find My Location</span>
+      </button>
+      <button id= "add-item" class="button is-success">
+        <span>Add item</span>
+      </button>
+      <div id="events">
+        <!-- List Item Container Example -->
+        <div class="notification is-primary">
+          <div class="columns">
+            <div class="column is-narrow">
+              <div class="box" style="width: 200px;">
+                <p class="title is-5">Event Title</p>
+                <p class="subtitle">Start Time</p>
+              </div>
+            </div>
+            <div class="column">
+              <div class="box">
+                <p class="title is-5">Event Info</p>
+                <p class="subtitle">Event Sub Info: Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid hic nostrum at molestias dolores deserunt quidem pariatur similique
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <!-- <script src="./assets/js/current-location-test.js"></script> -->
+  <script src="./assets/js/tm-test.js"></script>
+  <script src="./assets/js/mapquest-test.js"></script>
+  <script src="./assets/js/script.js"></script>
+  
+
+</body>
+</html>

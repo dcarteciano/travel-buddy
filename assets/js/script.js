@@ -4,6 +4,10 @@ var title = 'Event Title2';
 var time = 'Start Time2';
 var info = 'Event Info2';
 var subInfo = 'Event Sub Info2: Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid hic nostrum at molestias dolores deserunt quidem pariatur similique';
+var modal = {
+  display: $(".modal"),
+  content: $(".modal-content")
+}
 
 function addListEl(title, time, info, subInfo) {
 
@@ -55,6 +59,8 @@ function getMapData(from, to) {
         }
       }
       else {
+        modal.addClass("is-active");
+        modal.append($("<p>").text("Could not find route"));
         console.log("Could not find route between given locations");
       }
     })

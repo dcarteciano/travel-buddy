@@ -54,7 +54,7 @@ function getMapData(from, to) {
         }
       }
       else {
-        modal("Error", "Could not find route with given locations");
+        modal("Error", "Could not find route with given locations. Try a different starting address");
       }
     })
     .catch(function (err) {
@@ -85,13 +85,16 @@ function getApi() {
     });
 }
 
+// 
+var currentPosition;
+
 function getCurrentPos() {
 
   function success(position) {
     const latitude = position.coords.latitude;
     const longitude = position.coords.longitude;
 
-    return [latitude, longitude];
+    currentPosition = [latitude, longitude];
   }
 
   function error() {
@@ -105,36 +108,45 @@ function getCurrentPos() {
   }
 }
 
+// modal use
+// for a simple message use a string for title and info
+// for a form isForm needs to be true
 function modal(title, info, isForm, btnText) {
-  content = $(".modal-content");
+  var content = $(".modal-content");
 
+  // Displays Form
   if (isForm) {
-    formEl = $("<form>");
-    labelEl = $("<label>").text(title);
-    infoEL = $("<p>").text(info);
-    inputEl = $("<input>")
-    btnEl = $("<button>").text(btnText);
+    var formEl = $("<form>");
+    var labelEl = $("<label>").text(title);
+    var infoEL = $("<p>").text(info);
+    var inputEl = $("<input>")
+    var btnEl = $("<button>").addClass("button").text(btnText);
+    // TO ADD: on btnEl click use input data and toggleModal
     formEl.append(labelEl, infoEL, inputEl, btnEl);
     content.append(formEl);
   }
+  // Displays Message
   else {
     textEl = $("<p>");
     titleEl = $("<strong>").text(title);
     infoEl = $("<p>").text(info);
+    textEl.append(titleEl, infoEl);
+    content.append(textEl);
   }
-  
+
   function toggleModal() {
-    if (modal.display.hasClass("is-active")) {
-      modal.display.removeClass("is-active")
-      modal.content.empty();
+    var display = $(".modal");
+    if (display.hasClass("is-active")) {
+      display.removeClass("is-active")
+      content.empty();
     }
     else {
-      modal.display.addClass("is-active");
+      display.addClass("is-active");
     }
   }
 
-  $(".modal-close").on("click".toggleModal);
-
+  $(".modal-close").on("click", toggleModal);
+  
   toggleModal();
 }
 

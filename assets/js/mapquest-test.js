@@ -5,11 +5,17 @@ function getMapData(from, to) {
     .then(function (res) {
       console.log("mapquest:", res.data);
       if (res.data.route.realTime > 0) {
-        return res.data.route.realTime; // can adjust if we want more info, currently returns drivetime in seconds based on current traffic conditions 
+        if (res.data.route.realTime < 10000000) {
+          console.log("Drive time: " + res.data.route.realTime);
+          return res.data.route.realTime; // returns drivetime data in seconds based off of realtime traffic conditions
+        }
+        else {
+          console.log("realtime data unavailable", "Drive time: " + res.data.route.time);
+          return res.data.route.time; // if realtime data is unavailable, returns calculated drivetime time in seconds
+        }
       }
       else {
         console.log("Could not find route between given locations");
-        return;
       }
     })
     .catch(function (err) {
@@ -23,7 +29,7 @@ function geoFindMe() {
     const latitude = position.coords.latitude;
     const longitude = position.coords.longitude;
 
-    console.log(latitude, longitude);
+    getMapData([latitude, longitude], "salt lake city"); //test location
   }
 
   function error() {

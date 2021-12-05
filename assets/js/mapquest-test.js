@@ -7,7 +7,7 @@ function getMapData(from, to) {
       if (res.data.route.realTime > 0) {
         return res.data.route.realTime; // can adjust if we want more info, currently returns drivetime in seconds based on current traffic conditions 
       }
-      else{
+      else {
         console.log("Could not find route between given locations");
         return;
       }
@@ -16,3 +16,26 @@ function getMapData(from, to) {
       console.log("could not connect to mapquestapi.com");
     })
 }
+
+function geoFindMe() {
+
+  function success(position) {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+
+    console.log(latitude, longitude);
+  }
+
+  function error() {
+    console.log('Unable to retrieve your location');
+  }
+
+  if (!navigator.geolocation) {
+    console.log('Geolocation is not supported by your browser');
+  } else {
+    navigator.geolocation.getCurrentPosition(success, error);
+  }
+
+}
+
+document.querySelector('#find-me').addEventListener('click', geoFindMe);

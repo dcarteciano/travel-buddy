@@ -147,7 +147,13 @@ function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival) {
 // for a simple message use a string for title and info 
 // for a form isForm needs to be true
 function modal(title, info, isForm, btnText) {
+  var backgroundEl = $(".modal-background");
+  backgroundEl.on("click", toggleModal);
+
   var content = $(".modal-content").addClass("message is-success");
+  if (content.hasClass("is-warning")) {
+    content.removeClass("is-warning");
+  }
 
   // Displays Form
   if (isForm) {
@@ -184,13 +190,12 @@ function modal(title, info, isForm, btnText) {
     else {
       display.addClass("is-active");
     }
-  }
+  }  
 
   $(".modal-close").on("click", toggleModal);
 
   toggleModal();
 }
-
 
 function start() {
   var hours;
@@ -221,21 +226,25 @@ function start() {
 
   function locationType() {
     modal("Location", "Use current address or enter a starting address to get drive time");
-    var modalEl = $(".modal-content")
+    var modalContentEL = $(".modal-content")
     var btn1 = $("<button>").addClass("button is-success").text("My Location");
     var btn2 = $("<button>").addClass("button is-success").text("Custom Location");
-    modalEl.append(btn1, btn2);
+    modalContentEL.append(btn1, btn2);
 
+    display = $(".modal");
     btn1.on("click", function () {
+      display.removeClass("is-active");
+      modalContentEL.empty();
       getCurrentPos(cat, hours);
     });
     btn2.on("click", function () {
-
+      modalContentEL.empty();
+      display.removeClass("is-active")
       modal("Sorry", "This feature hasn't been added yet");
-      modalEl.addClass("is-warning");
+      modalContentEL.removeClass("is-success");
+      modalContentEL.addClass("is-warning");
     })
   }
-
   getHours();
 }
 

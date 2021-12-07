@@ -45,7 +45,7 @@ function getApi(cat, hours, currentLatitude, curentLongitude) {
       buildList(eventArray, hours);
     })
     .catch(function (err) {
-      console.log(err);
+     modal("Error", "Could not connect to ticketmaster.com");
     });
 }
 
@@ -65,64 +65,39 @@ function buildList(eventArray, hours) {
 
 // from and to can either be "lat,lon" or an adress
 function getMapData(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, hours) {
-  axios.get('http://www.mapquestapi.com/directions/v2/route?key=diSZVTUqXE3YRm5IRyRe5IWmMHZWbypB&from=' + from + '&to=' + to + '')
+  axios.get('https://www.mapquestapi.com/directions/v2/route?key=diSZVTUqXE3YRm5IRyRe5IWmMHZWbypB&from=' + from + '&to=' + to + '')
     .then(function (res) {
-      console.log("mapquest:", res.data);
       if (res.data.route.realTime > 0) {
         if (res.data.route.realTime < 10000000) {
-          console.log("Drive time: " + res.data.route.realTime);
           // returns drivetime data in seconds based off of realtime traffic conditions
           enoughTime(res.data.route.realTime, eventTitle, eventTime, eventInfo, eventSubInfo);
         }
         else {
-          console.log("realtime data unavailable", "Drive time: " + res.data.route.time);
           // if realtime data is unavailable, returns calculated drivetime time in seconds
           enoughTime(res.data.route.time, eventTitle, eventTime, eventInfo, eventSubInfo);
         }
       }
       else {
-        modal.addClass("is-active");
-        modal.append($("<p>").text("Could not find route"));
-        console.log("Could not find route between given locations");
+        modal("Error", "Could not find route between given locations");
       }
     })
     .catch(function (err) {
-      console.log("could not connect to mapquestapi.com", err);
+      modal("Error", "Could not connect to mapquest.com");
     })
 }
 
-// ticket master api to get events nearby and long/lat
-function getApi(cat, lat, long) {
-  var requestUrl = 
-    'https://app.ticketmaster.com/discovery/v2/events.json?classificationName=' + 
-    cat + 
-    '&latlong=' + 
-    lat + ',' + long + 
-    '&radius=100&unit=miles' + 
-    '&apikey=OWIi7laz1qDwxQmUKHndhZXCYa98oavA';
-
-   
-  axios.get(requestUrl)
-    .then(function (res) {
-      console.log('response', res);
-      var eventArray = res.data._embedded.events;
-      buildList(eventArray);
-      console.log('eventArray', eventArray);
-    })
-    .catch(function(err) {
-      console.log(err)
-    });
-    
-}
-
-function buildList(eventArray){
-
-  for (var i = 0; i < eventArray.length; i++) {
-    var eventTitle = eventArray[i].name;
-    var eventTime = eventArray[i].dates.start.dateTime;
-    var eventInfo = eventArray[i].url;
-    var eventId = eventArray[i].id;
-    addListEl(eventTitle, eventTime, eventInfo, [i], eventId);
+// function to check if you have enough time to get to an event
+// input is the drive time in seconds and the start time of the event.
+function enoughTime(driveTime, eventTitle, eventTime, eventInfo, eventSubInfo) {
+  var arriveTime = moment().add(driveTime, 'seconds').format();
+  //outputs false if the arival time is after the event start time
+  if (moment(arriveTime).isAfter(eventTime)) {
+    var arrival = false;
+    addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival);
+    //outputs true if it starts after the arrival time
+  } else {
+    var arrival = true;
+    addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival);
   }
 }
 
@@ -223,6 +198,8 @@ function modal(title, info, isForm, btnText) {
 
   toggleModal();
 }
+
+
 
 $('#find-me').click(function () {
   var cat = $("#cat-input").val();

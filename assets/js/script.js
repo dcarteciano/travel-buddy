@@ -50,6 +50,7 @@ function getApi(cat, hours, currentLatitude, curentLongitude) {
 }
 
 function buildList(eventArray, hours) {
+  console.log(hours);
   for (var i = 0; i < eventArray.length; i++) {
     var eventTitle = eventArray[i].name;
     var eventTime = eventArray[i].dates.start.dateTime;
@@ -185,9 +186,17 @@ function modal(title, info, isForm, btnText) {
     content.append(formEl);
 
     btnEl.on("click", function (event) {
-      event.preventDefault();
-      modalInput = $("#modal-input").val().trim();
-      toggleModal();
+      if (info = 'Please type a category'){
+        event.preventDefault();
+        modalInput = $("#modal-input").val().trim();
+        toggleModal();
+        var hours = $("#hours-input").val();
+        getCurrentPos(modalInput, hours);
+      } else {
+        event.preventDefault();
+        modalInput = $("#modal-input").val().trim();
+        toggleModal();
+      }
     });
   }
 
@@ -222,7 +231,7 @@ $('#find-me').click(function () {
   if (cat) {
     getCurrentPos(cat, hours);
   } else {
-    console.log('modal');
+    modal('Error', 'Please type a category', true, 'Try Again');
   }
 });
 

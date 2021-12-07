@@ -1,19 +1,17 @@
 var addButton = document.querySelector('#add-item');
 var events = document.querySelector('#events');
-var hours = document.querySelector('#hours-input');
-// var cat = document.querySelector('#cat-input');
-var cat = 'sports';
+var radius = 100; //search radius for ticketmaster events
 var currentLatitude;
 var curentLongitude;
 
-function getCurrentPos (){
+function getCurrentPos (cat, hours){
   currentLatitude = 0;
   curentLongitude = 0;
 
   function success(position) {
     currentLatitude = position.coords.latitude;
     curentLongitude = position.coords.longitude;
-    getApi(cat, currentLatitude, curentLongitude);
+    getApi(cat, hours, currentLatitude, curentLongitude);
   }
 
   function error() {
@@ -28,13 +26,13 @@ function getCurrentPos (){
 }
 
 // ticket master api to get events nearby and long/lat
-function getApi(cat, currentLatitude, curentLongitude) {
+function getApi(cat, hours, currentLatitude, curentLongitude) {
   var requestUrl = 
     'https://app.ticketmaster.com/discovery/v2/events.json?classificationName=' + 
     cat + 
     '&latlong=' + 
     currentLatitude + ',' + curentLongitude + 
-    '&radius=100&unit=miles' + 
+    '&radius=' + radius + '&unit=miles' + 
     '&apikey=OWIi7laz1qDwxQmUKHndhZXCYa98oavA';
 
   axios.get(requestUrl)
@@ -42,14 +40,14 @@ function getApi(cat, currentLatitude, curentLongitude) {
       console.log('response', res);
       var eventArray = res.data._embedded.events;
       console.log('eventArray', eventArray);
-      buildList(eventArray);
+      buildList(eventArray, hours);
     })
     .catch(function (err) {
       console.log(err);
     });
 }
 
-function buildList(eventArray){
+function buildList(eventArray, hours){
   for (var i = 0; i < eventArray.length; i++) {
     var eventTitle = eventArray[i].name;
     var eventTime = eventArray[i].dates.start.dateTime;
@@ -58,12 +56,12 @@ function buildList(eventArray){
     var eventLat = eventArray[i]._embedded.venues[0].location.latitude;
     var eventLong = eventArray[i]._embedded.venues[0].location.longitude;
     getMapData(currentLatitude + ',' + curentLongitude, eventLat + ',' + eventLong, 
-      eventTitle, eventTime, eventInfo, eventSubInfo);
+      eventTitle, eventTime, eventInfo, eventSubInfo, hours);
   }
 }
 
 // from and to can either be "lat,lon" or an adress
-function getMapData(from, to, eventTitle, eventTime, eventInfo, eventSubInfo) {
+function getMapData(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, hours) {
   axios.get('http://www.mapquestapi.com/directions/v2/route?key=EQrA7i7TLmnP9B1ZFC6CRQgsZVFl6XGz&from=' + from + '&to=' + to + '')
     .then(function (res) {
       console.log("mapquest:", res.data);
@@ -138,4 +136,12 @@ function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival) {
   listEl.appendTo(events);
 };
 
-document.querySelector('#find-me').addEventListener('click', getCurrentPos);
+$('#find-me').click(function() {
+  var cat = $("#cat-input").val();
+  var hours = $("#hours-input").val();
+  if (cat) {
+    getCurrentPos(cat, hours);
+  } else {
+    console.log('modal');
+  }
+});

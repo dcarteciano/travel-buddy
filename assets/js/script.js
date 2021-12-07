@@ -5,6 +5,8 @@ var hours = document.querySelector('#hours-input');
 var cat = 'sports';
 var currentLatitude;
 var curentLongitude;
+// last modal input, if value is needed elsewhere it should be stored in a separate var as a new input in modal will overwrite the var
+var modelInput; 
 
 function getCurrentPos() {
   currentLatitude = 0;
@@ -121,15 +123,19 @@ function modal(title, info, isForm, btnText) {
 
   // Displays Form
   if (isForm) {
-    var formEl = $("<form>");
-    var labelEl = $("<label>").text(title);
+    var formEl = $("<form>").addClass("field");
+    var labelEl = $("<label>").addClass("label").text(title);
     var infoEL = $("<p>").text(info);
-    var inputEl = $("<input>").attr("id", "modal-input");
+    var inputEl = $("<input>").addClass("input is-success").attr("id", "modal-input");
     var btnEl = $("<button>").addClass("button is-success").attr("id", "modal-submit").text(btnText);
     formEl.append(labelEl, infoEL, inputEl, btnEl);
     content.append(formEl);
 
-    btnEl.on("click", formSubmitHandler);
+    btnEl.on("click", function (event) {
+      event.preventDefault();
+      modalInput = $("#modal-input").val().trim();
+      toggleModal();
+    });
   }
 
   // Displays Message
@@ -157,13 +163,6 @@ function modal(title, info, isForm, btnText) {
   toggleModal();
 }
 
-function formSubmitHandler(event) {
-  event.preventDefault();
-  if (event.target.id === "modal-submit") {
-    var modalinput = event.val().trim();
-    console.log(modalinput);
-  }
-}
 
 // create a container for event
 // var listEl = $('<div>');
@@ -194,6 +193,7 @@ function formSubmitHandler(event) {
 
 document.querySelector('#find-me').addEventListener('click', getCurrentPos);
 
-document.querySelector("#address").addEventListener("click", function () {
-  modal("Enter a starting address", "", true, "Submit");
+// for testing modal form 
+document.querySelector("#form-test").addEventListener("click", function () {
+  modal("Title", "Info: Modal form stores input in modalInput var", true, "Submit");
 });

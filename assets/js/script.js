@@ -53,9 +53,9 @@ function buildList(eventArray, hours) {
   console.log(hours);
   // takes the dateTime objects from the event array and pushes them to another array to be sorted by date and time
   var dateTimeArr = [];
-  for (var i = 0; i < eventArray.length; i++){
-  var tempTime = eventArray[i].dates.start.dateTime;
-  dateTimeArr.push(tempTime)
+  for (var i = 0; i < eventArray.length; i++) {
+    var tempTime = eventArray[i].dates.start.dateTime;
+    dateTimeArr.push(tempTime)
   }
   dateTimeArr.sort()
   // takes the different objects of the event array and stores them to seperate variables
@@ -118,7 +118,7 @@ function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival) {
     arrival = 'No!';
   }
   eventTime = moment(eventTime).format('MMMM Do YYYY, h:mm:ss a');
-  
+
   console.log(eventTime)
 
   // create a container for event
@@ -159,12 +159,13 @@ function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival) {
 // for a simple message use a string for title and info 
 // for a form isForm needs to be true
 function modal(title, info, isForm, btnText) {
-  var backgroundEl = $(".modal-background");
-  backgroundEl.on("click", toggleModal);
 
-  var content = $(".modal-content").addClass("message is-success");
-  if (content.hasClass("is-warning")) {
-    content.removeClass("is-warning");
+  var content = $(".modal-content");
+  if (info === "Error") {
+    content.addClass("is-danger");
+  }
+  else {
+    content.addClass("is-success");
   }
 
   // Displays Form
@@ -193,21 +194,22 @@ function modal(title, info, isForm, btnText) {
     content.append(textEl);
   }
 
-  function toggleModal() {
-    var display = $(".modal");
-    if (display.hasClass("is-active")) {
-      display.removeClass("is-active")
-      content.empty();
-    }
-    else {
-      display.addClass("is-active");
-    }
-  }
-
-  $(".modal-close").on("click", toggleModal);
-
   toggleModal();
 }
+
+function toggleModal() {
+  var display = $(".modal");
+  if (display.hasClass("is-active")) {
+    display.removeClass("is-active is-success is-warning is-danger");
+    $(".modal-content").empty();
+  }
+  else {
+    display.addClass("is-active");
+  }
+}
+
+$(".modal-close").on("click", toggleModal);
+$(".modal-background").on("click", toggleModal);
 
 // After get events button is clicked user is taken step by step through the input forms
 function start() {
@@ -253,17 +255,12 @@ function start() {
 
     display = $(".modal");
     btn1.on("click", function () {
-      if (display.hasClass("is-active")) {
-        display.removeClass("is-active");
-        modalContentEl.empty();
-        getCurrentPos(cat, hours);
-      }
+      toggleModal();
+      getCurrentPos(cat, hours);
+
     });
     btn2.on("click", function () {
-      if (display.hasClass("is-active")) {
-        display.removeClass("is-active")
-        modalContentEl.empty();
-      }
+      toggleModal();
       modal("Sorry", "This feature hasn't been added yet");
       modalContentEl.removeClass("is-success");
       modalContentEl.addClass("is-warning");

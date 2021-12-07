@@ -81,7 +81,12 @@ function getApi(cat, lat, long) {
       var eventArray = res.data._embedded.events;
       console.log('eventArray', eventArray);
       buildList(eventArray);
+
+    })
+    .catch(function(err) {
+      console.log(err)
     });
+    
 }
 
 function buildList(eventArray){

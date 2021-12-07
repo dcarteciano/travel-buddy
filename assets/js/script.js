@@ -106,9 +106,8 @@ function getApi(cat, lat, long) {
     .then(function (res) {
       console.log('response', res);
       var eventArray = res.data._embedded.events;
-      console.log('eventArray', eventArray);
       buildList(eventArray);
-
+      console.log('eventArray', eventArray);
     })
     .catch(function(err) {
       console.log(err)

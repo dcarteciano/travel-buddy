@@ -51,9 +51,17 @@ function getApi(cat, hours, currentLatitude, curentLongitude) {
 
 function buildList(eventArray, hours) {
   console.log(hours);
+  // takes the dateTime objects from the event array and pushes them to another array to be sorted by date and time
+  var dateTimeArr = [];
+  for (var i = 0; i < eventArray.length; i++){
+  var tempTime = eventArray[i].dates.start.dateTime;
+  dateTimeArr.push(tempTime)
+  }
+  dateTimeArr.sort()
+  // takes the different objects of the event array and stores them to seperate variables
   for (var i = 0; i < eventArray.length; i++) {
     var eventTitle = eventArray[i].name;
-    var eventTime = eventArray[i].dates.start.dateTime;
+    var eventTime = dateTimeArr[i];
     var eventInfo = eventArray[i]._embedded.venues[0].name;
     var eventSubInfo = eventArray[i].url;
     var eventLat = eventArray[i]._embedded.venues[0].location.latitude;
@@ -61,6 +69,8 @@ function buildList(eventArray, hours) {
     getMapData(currentLatitude + ',' + curentLongitude, eventLat + ',' + eventLong,
       eventTitle, eventTime, eventInfo, eventSubInfo, hours);
   }
+
+  console.log(dateTimeArr);
 }
 
 // from and to can either be "lat,lon" or an adress
@@ -108,6 +118,8 @@ function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival) {
     arrival = 'No!';
   }
   eventTime = moment(eventTime).format('MMMM Do YYYY, h:mm:ss a');
+  
+  console.log(eventTime)
 
   // create a container for event
   var listEl = $('<div>');

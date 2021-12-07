@@ -159,11 +159,11 @@ function modal(title, info, isForm, btnText) {
   if (isForm) {
     var formEl = $("<form>").addClass("field is-success");
     var labelEl = $("<label>").addClass("label message-header").text(title);
-    var infoEL = $("<p>").text(info);
+    var infoEL = $("<p>").addClass("message-body").text(info);
     var inputEl = $("<input>").addClass("input is-success").attr("id", "modal-input");
     var btnEl = $("<button>").addClass("button is-success").attr("id", "modal-submit").text(btnText);
-    formEl.append(labelEl, infoEL, inputEl, btnEl);
-    content.append(formEl);
+    formEl.append(labelEl, infoEL, inputEl);
+    content.append(formEl, btnEl);
 
     btnEl.on("click", function (event) {
       event.preventDefault();
@@ -175,8 +175,8 @@ function modal(title, info, isForm, btnText) {
   // Displays Message
   else {
     textEl = $("<p>");
-    titleEl = $("<strong>").text(title);
-    infoEl = $("<p>").text(info);
+    titleEl = $("<strong>").addClass("message-header").text(title);
+    infoEl = $("<p>").addClass("message-body").text(info);
     textEl.append(titleEl, infoEl);
     content.append(textEl);
   }
@@ -190,13 +190,14 @@ function modal(title, info, isForm, btnText) {
     else {
       display.addClass("is-active");
     }
-  }  
+  }
 
   $(".modal-close").on("click", toggleModal);
 
   toggleModal();
 }
 
+// After get events button is clicked user is taken step by step through the input forms
 function start() {
   var hours;
   var cat;
@@ -216,7 +217,7 @@ function start() {
   function getCategory() {
     modal("Category", "Please enter a category", true, "Submit");
     $("#modal-submit").on("click", function () {
-      if(modalInput) {
+      if (modalInput) {
         cat = modalInput;
         modalInput = "";
         locationType();
@@ -226,23 +227,34 @@ function start() {
 
   function locationType() {
     modal("Location", "Use current address or enter a starting address to get drive time");
-    var modalContentEL = $(".modal-content")
-    var btn1 = $("<button>").addClass("button is-success").text("My Location");
-    var btn2 = $("<button>").addClass("button is-success").text("Custom Location");
-    modalContentEL.append(btn1, btn2);
+    var modalContentEl = $(".modal-content")
+    var paginationEl = $("<div>").addClass("pagination").attr("aria-label", "pagination");
+    var btn1 = $("<button>").addClass("button is-success pagination-previous");
+    var iSpanEl = $("<span>").addClass("icon");
+    var iconEl = $("<i>").addClass("fas fa-location-arrow").attr("aria-hidden", "true");
+    var textSpanEl = $("<span>").text("My Location");
+    iSpanEl.append(iconEl);
+    btn1.append(iSpanEl, textSpanEl);
+    var btn2 = $("<button>").addClass("button is-success pagination-next").text("Custom Location");
+    paginationEl.append(btn1, btn2);
+    modalContentEl.append(paginationEl);
 
     display = $(".modal");
     btn1.on("click", function () {
-      display.removeClass("is-active");
-      modalContentEL.empty();
-      getCurrentPos(cat, hours);
+      if (display.hasClass("is-active")) {
+        display.removeClass("is-active");
+        modalContentEl.empty();
+        getCurrentPos(cat, hours);
+      }
     });
     btn2.on("click", function () {
-      modalContentEL.empty();
-      display.removeClass("is-active")
+      if (display.hasClass("is-active")) {
+        display.removeClass("is-active")
+        modalContentEl.empty();
+      }
       modal("Sorry", "This feature hasn't been added yet");
-      modalContentEL.removeClass("is-success");
-      modalContentEL.addClass("is-warning");
+      modalContentEl.removeClass("is-success");
+      modalContentEl.addClass("is-warning");
     })
   }
   getHours();
@@ -259,6 +271,6 @@ $('#find-me').click(function () {
 });
 
 // for testing modal form 
-document.querySelector("#form-test").addEventListener("click", function () {
+document.querySelector("#get-events").addEventListener("click", function () {
   start();
 });

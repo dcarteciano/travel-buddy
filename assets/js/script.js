@@ -45,7 +45,7 @@ function getApi(cat, hours, currentLatitude, curentLongitude) {
       buildList(eventArray, hours);
     })
     .catch(function (err) {
-      console.log(err);
+      modal("Error", "Could not connect to ticketmaster.com");
     });
 }
 
@@ -75,29 +75,24 @@ function buildList(eventArray, hours) {
 
 // from and to can either be "lat,lon" or an adress
 function getMapData(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, hours) {
-  axios.get('http://www.mapquestapi.com/directions/v2/route?key=diSZVTUqXE3YRm5IRyRe5IWmMHZWbypB&from=' + from + '&to=' + to + '')
+  axios.get('https://www.mapquestapi.com/directions/v2/route?key=diSZVTUqXE3YRm5IRyRe5IWmMHZWbypB&from=' + from + '&to=' + to + '')
     .then(function (res) {
-      console.log("mapquest:", res.data);
       if (res.data.route.realTime > 0) {
         if (res.data.route.realTime < 10000000) {
-          console.log("Drive time: " + res.data.route.realTime);
           // returns drivetime data in seconds based off of realtime traffic conditions
           enoughTime(res.data.route.realTime, eventTitle, eventTime, eventInfo, eventSubInfo);
         }
         else {
-          console.log("realtime data unavailable", "Drive time: " + res.data.route.time);
           // if realtime data is unavailable, returns calculated drivetime time in seconds
           enoughTime(res.data.route.time, eventTitle, eventTime, eventInfo, eventSubInfo);
         }
       }
       else {
-        modal.addClass("is-active");
-        modal.append($("<p>").text("Could not find route"));
-        console.log("Could not find route between given locations");
+        modal("Error", "Could not find route between given locations");
       }
     })
     .catch(function (err) {
-      console.log("could not connect to mapquestapi.com", err);
+      modal("Error", "Could not connect to mapquest.com");
     })
 }
 
@@ -149,7 +144,7 @@ function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival) {
   listEventDriveTime.addClass('subtitle').text('Can you make it? ' + arrival).appendTo(listSecColBox);
 
   // https://google.com/maps/dir//Vivint+Arena/@40.6219482,-112.0623527,11
-  
+
   var listEventSubInfo = $('<a>')
     .attr('href', eventSubInfo)
     .attr('target', '_blank')
@@ -164,38 +159,36 @@ function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival) {
 // for a simple message use a string for title and info 
 // for a form isForm needs to be true
 function modal(title, info, isForm, btnText) {
-  var content = $(".modal-content");
+  var backgroundEl = $(".modal-background");
+  backgroundEl.on("click", toggleModal);
+
+  var content = $(".modal-content").addClass("message is-success");
+  if (content.hasClass("is-warning")) {
+    content.removeClass("is-warning");
+  }
 
   // Displays Form
   if (isForm) {
-    var formEl = $("<form>").addClass("field");
-    var labelEl = $("<label>").addClass("label").text(title);
-    var infoEL = $("<p>").text(info);
+    var formEl = $("<form>").addClass("field is-success");
+    var labelEl = $("<label>").addClass("label message-header").text(title);
+    var infoEL = $("<p>").addClass("message-body").text(info);
     var inputEl = $("<input>").addClass("input is-success").attr("id", "modal-input");
     var btnEl = $("<button>").addClass("button is-success").attr("id", "modal-submit").text(btnText);
-    formEl.append(labelEl, infoEL, inputEl, btnEl);
-    content.append(formEl);
+    formEl.append(labelEl, infoEL, inputEl);
+    content.append(formEl, btnEl);
 
     btnEl.on("click", function (event) {
-      if (info = 'Please type a category'){
-        event.preventDefault();
-        modalInput = $("#modal-input").val().trim();
-        toggleModal();
-        var hours = $("#hours-input").val();
-        getCurrentPos(modalInput, hours);
-      } else {
-        event.preventDefault();
-        modalInput = $("#modal-input").val().trim();
-        toggleModal();
-      }
+      event.preventDefault();
+      modalInput = $("#modal-input").val().trim();
+      toggleModal();
     });
   }
 
   // Displays Message
   else {
     textEl = $("<p>");
-    titleEl = $("<strong>").text(title);
-    infoEl = $("<p>").text(info);
+    titleEl = $("<strong>").addClass("message-header").text(title);
+    infoEl = $("<p>").addClass("message-body").text(info);
     textEl.append(titleEl, infoEl);
     content.append(textEl);
   }
@@ -216,17 +209,70 @@ function modal(title, info, isForm, btnText) {
   toggleModal();
 }
 
-$('#find-me').click(function () {
-  var cat = $("#cat-input").val();
-  var hours = $("#hours-input").val();
-  if (cat) {
-    getCurrentPos(cat, hours);
-  } else {
-    modal('Error', 'Please type a category', true, 'Try Again');
+// After get events button is clicked user is taken step by step through the input forms
+function start() {
+  var hours;
+  var cat;
+
+  function getHours() {
+    modal("Time", "How many hours do you have?", true, "Submit");
+    $("#modal-input").attr("type", "number");
+    $("#modal-submit").on("click", function () {
+      if (modalInput) {
+        hours = modalInput;
+        modalInput = "";
+        getCategory();
+      }
+    })
   }
-});
+
+  function getCategory() {
+    modal("Category", "What type of event are you looking for?", true, "Submit");
+    $("#modal-submit").on("click", function () {
+      if (modalInput) {
+        cat = modalInput;
+        modalInput = "";
+        locationType();
+      }
+    })
+  }
+
+  function locationType() {
+    modal("Location", "Use current address or enter a starting address to get drive time");
+    var modalContentEl = $(".modal-content")
+    var paginationEl = $("<div>").addClass("pagination").attr("aria-label", "pagination");
+    var btn1 = $("<button>").addClass("button is-success pagination-previous");
+    var iSpanEl = $("<span>").addClass("icon");
+    var iconEl = $("<i>").addClass("fas fa-location-arrow").attr("aria-hidden", "true");
+    var textSpanEl = $("<span>").text("My Location");
+    iSpanEl.append(iconEl);
+    btn1.append(iSpanEl, textSpanEl);
+    var btn2 = $("<button>").addClass("button is-success pagination-next").text("Custom Location");
+    paginationEl.append(btn1, btn2);
+    modalContentEl.append(paginationEl);
+
+    display = $(".modal");
+    btn1.on("click", function () {
+      if (display.hasClass("is-active")) {
+        display.removeClass("is-active");
+        modalContentEl.empty();
+        getCurrentPos(cat, hours);
+      }
+    });
+    btn2.on("click", function () {
+      if (display.hasClass("is-active")) {
+        display.removeClass("is-active")
+        modalContentEl.empty();
+      }
+      modal("Sorry", "This feature hasn't been added yet");
+      modalContentEl.removeClass("is-success");
+      modalContentEl.addClass("is-warning");
+    })
+  }
+  getHours();
+}
 
 // for testing modal form 
-document.querySelector("#form-test").addEventListener("click", function () {
-  modal("Title", "Info: Modal form stores input in modalInput var", true, "Submit");
+document.querySelector("#get-events").addEventListener("click", function () {
+  start();
 });

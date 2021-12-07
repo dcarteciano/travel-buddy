@@ -62,7 +62,7 @@ function buildList(eventArray, hours){
 
 // from and to can either be "lat,lon" or an adress
 function getMapData(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, hours) {
-  axios.get('http://www.mapquestapi.com/directions/v2/route?key=EQrA7i7TLmnP9B1ZFC6CRQgsZVFl6XGz&from=' + from + '&to=' + to + '')
+  axios.get('http://www.mapquestapi.com/directions/v2/route?key=diSZVTUqXE3YRm5IRyRe5IWmMHZWbypB&from=' + from + '&to=' + to + '')
     .then(function (res) {
       console.log("mapquest:", res.data);
       if (res.data.route.realTime > 0) {
@@ -84,7 +84,7 @@ function getMapData(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, ho
       }
     })
     .catch(function (err) {
-      console.log("could not connect to mapquestapi.com");
+      console.log("could not connect to mapquestapi.com", err);
     })
 }
 
@@ -109,6 +109,8 @@ function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival) {
   } else {
     arrival = 'No!';
   }
+  eventTime = moment(eventTime).format('MMMM Do YYYY, h:mm:ss a');
+
   // create a container for event
   var listEl = $('<div>');
   listEl.addClass('notification is-primary');
@@ -130,8 +132,12 @@ function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival) {
   listSecColBox.addClass('box').appendTo(listSecColEl);
   var listEventInfo = $('<p>');
   listEventInfo.addClass('title is-5').text(eventInfo).appendTo(listSecColBox);
-  var listEventSubInfo = $('<p>');
-  listEventSubInfo.addClass('subtitle').text(eventSubInfo).appendTo(listSecColBox);
+  var listEventSubInfo = $('<a>')
+    .attr('href', eventSubInfo)
+    .attr('target', '_blank')
+    .addClass('button is-success')
+    .text('Get Tickets');
+  listEventSubInfo.appendTo(listSecColBox);
 
   listEl.appendTo(events);
 };

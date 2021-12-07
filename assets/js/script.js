@@ -6,7 +6,7 @@ var cat = 'sports';
 var currentLatitude;
 var curentLongitude;
 
-function getCurrentPos (){
+function getCurrentPos() {
   currentLatitude = 0;
   curentLongitude = 0;
 
@@ -17,11 +17,11 @@ function getCurrentPos (){
   }
 
   function error() {
-    console.log('Unable to retrieve your location');
+    modal('Error', 'Unable to retrieve your location');
   }
 
   if (!navigator.geolocation) {
-    console.log('Geolocation is not supported by your browser');
+    modal('Error', 'Geolocation is not supported by your browser');
   } else {
     navigator.geolocation.getCurrentPosition(success, error);
   }
@@ -29,12 +29,12 @@ function getCurrentPos (){
 
 // ticket master api to get events nearby and long/lat
 function getApi(cat, currentLatitude, curentLongitude) {
-  var requestUrl = 
-    'https://app.ticketmaster.com/discovery/v2/events.json?classificationName=' + 
-    cat + 
-    '&latlong=' + 
-    currentLatitude + ',' + curentLongitude + 
-    '&radius=100&unit=miles' + 
+  var requestUrl =
+    'https://app.ticketmaster.com/discovery/v2/events.json?classificationName=' +
+    cat +
+    '&latlong=' +
+    currentLatitude + ',' + curentLongitude +
+    '&radius=100&unit=miles' +
     '&apikey=OWIi7laz1qDwxQmUKHndhZXCYa98oavA';
 
   axios.get(requestUrl)
@@ -49,7 +49,7 @@ function getApi(cat, currentLatitude, curentLongitude) {
     });
 }
 
-function buildList(eventArray){
+function buildList(eventArray) {
   for (var i = 0; i < eventArray.length; i++) {
     var eventTitle = eventArray[i].name;
     var eventTime = eventArray[i].dates.start.dateTime;
@@ -57,7 +57,7 @@ function buildList(eventArray){
     var eventSubInfo = eventArray[i].url;
     var eventLat = eventArray[i]._embedded.venues[0].location.latitude;
     var eventLong = eventArray[i]._embedded.venues[0].location.longitude;
-    getMapData(currentLatitude + ',' + curentLongitude, eventLat + ',' + eventLong, 
+    getMapData(currentLatitude + ',' + curentLongitude, eventLat + ',' + eventLong,
       eventTitle, eventTime, eventInfo, eventSubInfo);
   }
 }
@@ -92,10 +92,10 @@ function getMapData(from, to, eventTitle, eventTime, eventInfo, eventSubInfo) {
 
 // function to check if you have enough time to get to an event
 // input is the drive time in seconds and the start time of the event.
-function enoughTime(driveTime, eventTitle, eventTime, eventInfo, eventSubInfo){
+function enoughTime(driveTime, eventTitle, eventTime, eventInfo, eventSubInfo) {
   var arriveTime = moment().add(driveTime, 'seconds').format();
   //outputs false if the arival time is after the event start time
-  if (moment(arriveTime).isAfter(eventTime)){
+  if (moment(arriveTime).isAfter(eventTime)) {
     var arrival = false;
     addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival);
     //outputs true if it starts after the arrival time
@@ -106,7 +106,7 @@ function enoughTime(driveTime, eventTitle, eventTime, eventInfo, eventSubInfo){
 }
 
 function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival) {
-  if (arrival){
+  if (arrival) {
     arrival = 'Yes!';
   } else {
     arrival = 'No!';
@@ -124,13 +124,14 @@ function modal(title, info, isForm, btnText) {
     var formEl = $("<form>");
     var labelEl = $("<label>").text(title);
     var infoEL = $("<p>").text(info);
-    var inputEl = $("<input>");
-    var btnEl = $("<button>").addClass("button is-success").attr("id", "address-submit").text(btnText);
-    // TO ADD: on btnEl click use input data and toggleModal
+    var inputEl = $("<input>").attr("id", "modal-input");
+    var btnEl = $("<button>").addClass("button is-success").attr("id", "modal-submit").text(btnText);
     formEl.append(labelEl, infoEL, inputEl, btnEl);
-    formEl.on("click", formSubmitHandler);
     content.append(formEl);
+
+    btnEl.on("click", formSubmitHandler);
   }
+
   // Displays Message
   else {
     textEl = $("<p>");
@@ -158,40 +159,41 @@ function modal(title, info, isForm, btnText) {
 
 function formSubmitHandler(event) {
   event.preventDefault();
-  if (event.target.id === "address-submit") {
-    console.log(event);
+  if (event.target.id === "modal-submit") {
+    var modalinput = event.val().trim();
+    console.log(modalinput);
   }
 }
 
+// create a container for event
+// var listEl = $('<div>');
+// listEl.addClass('notification is-primary');
+// var listColEl = $('<div>');
+// listColEl.addClass('columns').appendTo(listEl);
+// var listFirstColEl = $('<div>');
+// listFirstColEl.addClass('column is-narrow').appendTo(listColEl);
+// var listFirstColBox = $('<div>');
+// listFirstColBox.addClass('box').attr('style', 'width: 200px;').appendTo(listFirstColEl);
+// var listEventTitle = $('<p>');
+// // listEventTitle.addClass('title is-5').text(eventTitle).appendTo(listFirstColBox);
+// var listEventTime = $('<p>');
+// // listEventTime.addClass('subtitle').text(eventTime).appendTo(listFirstColBox);
+// var listEventDriveTime = $('<p>');
+// listEventDriveTime.addClass('subtitle').text('Can you make it?' + arrival).appendTo(listFirstColBox);
+// var listSecColEl = $('<div>');
+// listSecColEl.addClass('column').appendTo(listColEl);
+// var listSecColBox = $('<div>');
+// listSecColBox.addClass('box').appendTo(listSecColEl);
+// var listEventInfo = $('<p>');
+// listEventInfo.addClass('title is-5').text(eventInfo).appendTo(listSecColBox);
+// var listEventSubInfo = $('<p>');
+// listEventSubInfo.addClass('subtitle').text(eventSubInfo).appendTo(listSecColBox);
+
+// listEl.appendTo(events);
+
+
 document.querySelector('#find-me').addEventListener('click', getCurrentPos);
+
 document.querySelector("#address").addEventListener("click", function () {
   modal("Enter a starting address", "", true, "Submit");
 });
-  // create a container for event
-  var listEl = $('<div>');
-  listEl.addClass('notification is-primary');
-  var listColEl = $('<div>');
-  listColEl.addClass('columns').appendTo(listEl);
-  var listFirstColEl = $('<div>');
-  listFirstColEl.addClass('column is-narrow').appendTo(listColEl);
-  var listFirstColBox = $('<div>');
-  listFirstColBox.addClass('box').attr('style', 'width: 200px;').appendTo(listFirstColEl);
-  var listEventTitle = $('<p>');
-  listEventTitle.addClass('title is-5').text(eventTitle).appendTo(listFirstColBox);
-  var listEventTime = $('<p>');
-  listEventTime.addClass('subtitle').text(eventTime).appendTo(listFirstColBox);
-  var listEventDriveTime = $('<p>');
-  listEventDriveTime.addClass('subtitle').text('Can you make it?' + arrival).appendTo(listFirstColBox);
-  var listSecColEl = $('<div>');
-  listSecColEl.addClass('column').appendTo(listColEl);
-  var listSecColBox = $('<div>');
-  listSecColBox.addClass('box').appendTo(listSecColEl);
-  var listEventInfo = $('<p>');
-  listEventInfo.addClass('title is-5').text(eventInfo).appendTo(listSecColBox);
-  var listEventSubInfo = $('<p>');
-  listEventSubInfo.addClass('subtitle').text(eventSubInfo).appendTo(listSecColBox);
-
-  listEl.appendTo(events);
-};
-
-document.querySelector('#find-me').addEventListener('click', getCurrentPos);

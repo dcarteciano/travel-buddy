@@ -161,7 +161,7 @@ function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival) {
 function modal(title, info, isForm, btnText) {
 
   var content = $(".modal-content");
-  if (info === "Error") {
+  if (title === "Error") {
     content.addClass("is-danger");
   }
   else {
@@ -200,8 +200,8 @@ function modal(title, info, isForm, btnText) {
 function toggleModal() {
   var display = $(".modal");
   if (display.hasClass("is-active")) {
-    display.removeClass("is-active is-success is-warning is-danger");
-    $(".modal-content").empty();
+    display.removeClass("is-active");
+    $(".modal-content").removeClass("is-success is-warning is-danger").empty();
   }
   else {
     display.addClass("is-active");

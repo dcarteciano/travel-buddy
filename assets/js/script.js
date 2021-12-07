@@ -203,7 +203,7 @@ function start() {
   var cat;
 
   function getHours() {
-    modal("Time", "How much time do you have?", true, "Submit");
+    modal("Time", "How many hours do you have?", true, "Submit");
     $("#modal-input").attr("type", "number");
     $("#modal-submit").on("click", function () {
       if (modalInput) {
@@ -215,7 +215,7 @@ function start() {
   }
 
   function getCategory() {
-    modal("Category", "Please enter a category", true, "Submit");
+    modal("Category", "What type of event are you looking for?", true, "Submit");
     $("#modal-submit").on("click", function () {
       if (modalInput) {
         cat = modalInput;

@@ -2,7 +2,7 @@ var addButton = document.querySelector('#add-item');
 var events = document.querySelector('#events');
 var hours = document.querySelector('#hours-input');
 // var cat = document.querySelector('#cat-input');
-var cat = 'music';
+var cat = 'sports';
 var currentLatitude;
 var curentLongitude;
 
@@ -106,7 +106,7 @@ function enoughTime(driveTime, eventTitle, eventTime, eventInfo, eventSubInfo){
 }
 
 function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival) {
-  if (arrival = true){
+  if (arrival){
     arrival = 'Yes!';
   } else {
     arrival = 'No!';

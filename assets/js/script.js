@@ -260,16 +260,6 @@ function start() {
   getHours();
 }
 
-$('#find-me').click(function () {
-  var cat = $("#cat-input").val();
-  var hours = $("#hours-input").val();
-  if (cat) {
-    getCurrentPos(cat, hours);
-  } else {
-    modal('Error', 'Please type a category', true, 'Try Again');
-  }
-});
-
 // for testing modal form 
 document.querySelector("#get-events").addEventListener("click", function () {
   start();

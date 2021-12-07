@@ -121,17 +121,20 @@ function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival) {
   var listFirstColBox = $('<div>');
   listFirstColBox.addClass('box').attr('style', 'width: 200px;').appendTo(listFirstColEl);
   var listEventTitle = $('<p>');
-  listEventTitle.addClass('title is-5').text(eventTitle).appendTo(listFirstColBox);
+  listEventTitle.addClass('title is-4').text(eventTitle).appendTo(listFirstColBox);
+  var listEventInfo = $('<p>');
+  listEventInfo.addClass('title is-5').text(eventInfo).appendTo(listFirstColBox);
   var listEventTime = $('<p>');
-  listEventTime.addClass('subtitle').text(eventTime).appendTo(listFirstColBox);
-  var listEventDriveTime = $('<p>');
-  listEventDriveTime.addClass('subtitle').text('Can you make it?' + arrival).appendTo(listFirstColBox);
+  listEventTime.addClass('title is-6').text(eventTime).appendTo(listFirstColBox);
   var listSecColEl = $('<div>');
   listSecColEl.addClass('column').appendTo(listColEl);
   var listSecColBox = $('<div>');
   listSecColBox.addClass('box').appendTo(listSecColEl);
-  var listEventInfo = $('<p>');
-  listEventInfo.addClass('title is-5').text(eventInfo).appendTo(listSecColBox);
+  var listEventDriveTime = $('<p>');
+  listEventDriveTime.addClass('subtitle').text('Can you make it? ' + arrival).appendTo(listSecColBox);
+
+  // https://google.com/maps/dir//Vivint+Arena/@40.6219482,-112.0623527,11
+  
   var listEventSubInfo = $('<a>')
     .attr('href', eventSubInfo)
     .attr('target', '_blank')

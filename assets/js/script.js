@@ -3,8 +3,10 @@ var events = document.querySelector('#events');
 var radius = 100; //search radius for ticketmaster events
 var currentLatitude;
 var curentLongitude;
+// last modal input, if value is needed elsewhere it should be stored in a separate var as a new input in modal will overwrite the var
+var modelInput;
 
-function getCurrentPos (cat, hours){
+function getCurrentPos(cat, hours) {
   currentLatitude = 0;
   curentLongitude = 0;
 
@@ -15,11 +17,11 @@ function getCurrentPos (cat, hours){
   }
 
   function error() {
-    console.log('Unable to retrieve your location');
+    modal('Error', 'Unable to retrieve your location');
   }
 
   if (!navigator.geolocation) {
-    console.log('Geolocation is not supported by your browser');
+    modal('Error', 'Geolocation is not supported by your browser');
   } else {
     navigator.geolocation.getCurrentPosition(success, error);
   }
@@ -27,12 +29,12 @@ function getCurrentPos (cat, hours){
 
 // ticket master api to get events nearby and long/lat
 function getApi(cat, hours, currentLatitude, curentLongitude) {
-  var requestUrl = 
-    'https://app.ticketmaster.com/discovery/v2/events.json?classificationName=' + 
-    cat + 
-    '&latlong=' + 
-    currentLatitude + ',' + curentLongitude + 
-    '&radius=' + radius + '&unit=miles' + 
+  var requestUrl =
+    'https://app.ticketmaster.com/discovery/v2/events.json?classificationName=' +
+    cat +
+    '&latlong=' +
+    currentLatitude + ',' + curentLongitude +
+    '&radius=' + radius + '&unit=miles' +
     '&apikey=OWIi7laz1qDwxQmUKHndhZXCYa98oavA';
 
   axios.get(requestUrl)
@@ -47,7 +49,7 @@ function getApi(cat, hours, currentLatitude, curentLongitude) {
     });
 }
 
-function buildList(eventArray, hours){
+function buildList(eventArray, hours) {
   for (var i = 0; i < eventArray.length; i++) {
     var eventTitle = eventArray[i].name;
     var eventTime = eventArray[i].dates.start.dateTime;
@@ -55,7 +57,7 @@ function buildList(eventArray, hours){
     var eventSubInfo = eventArray[i].url;
     var eventLat = eventArray[i]._embedded.venues[0].location.latitude;
     var eventLong = eventArray[i]._embedded.venues[0].location.longitude;
-    getMapData(currentLatitude + ',' + curentLongitude, eventLat + ',' + eventLong, 
+    getMapData(currentLatitude + ',' + curentLongitude, eventLat + ',' + eventLong,
       eventTitle, eventTime, eventInfo, eventSubInfo, hours);
   }
 }
@@ -90,10 +92,10 @@ function getMapData(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, ho
 
 // function to check if you have enough time to get to an event
 // input is the drive time in seconds and the start time of the event.
-function enoughTime(driveTime, eventTitle, eventTime, eventInfo, eventSubInfo){
+function enoughTime(driveTime, eventTitle, eventTime, eventInfo, eventSubInfo) {
   var arriveTime = moment().add(driveTime, 'seconds').format();
   //outputs false if the arival time is after the event start time
-  if (moment(arriveTime).isAfter(eventTime)){
+  if (moment(arriveTime).isAfter(eventTime)) {
     var arrival = false;
     addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival);
     //outputs true if it starts after the arrival time
@@ -104,7 +106,7 @@ function enoughTime(driveTime, eventTitle, eventTime, eventInfo, eventSubInfo){
 }
 
 function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival) {
-  if (arrival){
+  if (arrival) {
     arrival = 'Yes!';
   } else {
     arrival = 'No!';
@@ -142,7 +144,55 @@ function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival) {
   listEl.appendTo(events);
 };
 
-$('#find-me').click(function() {
+// modal use
+// for a simple message use a string for title and info 
+// for a form isForm needs to be true
+function modal(title, info, isForm, btnText) {
+  var content = $(".modal-content");
+
+  // Displays Form
+  if (isForm) {
+    var formEl = $("<form>").addClass("field");
+    var labelEl = $("<label>").addClass("label").text(title);
+    var infoEL = $("<p>").text(info);
+    var inputEl = $("<input>").addClass("input is-success").attr("id", "modal-input");
+    var btnEl = $("<button>").addClass("button is-success").attr("id", "modal-submit").text(btnText);
+    formEl.append(labelEl, infoEL, inputEl, btnEl);
+    content.append(formEl);
+
+    btnEl.on("click", function (event) {
+      event.preventDefault();
+      modalInput = $("#modal-input").val().trim();
+      toggleModal();
+    });
+  }
+
+  // Displays Message
+  else {
+    textEl = $("<p>");
+    titleEl = $("<strong>").text(title);
+    infoEl = $("<p>").text(info);
+    textEl.append(titleEl, infoEl);
+    content.append(textEl);
+  }
+
+  function toggleModal() {
+    var display = $(".modal");
+    if (display.hasClass("is-active")) {
+      display.removeClass("is-active")
+      content.empty();
+    }
+    else {
+      display.addClass("is-active");
+    }
+  }
+
+  $(".modal-close").on("click", toggleModal);
+
+  toggleModal();
+}
+
+$('#find-me').click(function () {
   var cat = $("#cat-input").val();
   var hours = $("#hours-input").val();
   if (cat) {
@@ -150,4 +200,9 @@ $('#find-me').click(function() {
   } else {
     console.log('modal');
   }
+});
+
+// for testing modal form 
+document.querySelector("#form-test").addEventListener("click", function () {
+  modal("Title", "Info: Modal form stores input in modalInput var", true, "Submit");
 });

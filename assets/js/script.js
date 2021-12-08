@@ -35,6 +35,7 @@ function getApi(cat, hours, currentLatitude, curentLongitude) {
     '&latlong=' +
     currentLatitude + ',' + curentLongitude +
     '&radius=' + radius + '&unit=miles' +
+    '&sort=date,asc' + 
     '&apikey=OWIi7laz1qDwxQmUKHndhZXCYa98oavA';
 
   axios.get(requestUrl)
@@ -215,6 +216,7 @@ $(".modal-background").on("click", toggleModal);
 function start() {
   var hours;
   var cat;
+  
 
   function getHours() {
     modal("Time", "How many hours do you have?", true, "Submit");

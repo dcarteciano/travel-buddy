@@ -216,6 +216,7 @@ $(".modal-background").on("click", toggleModal);
 function start() {
   var cat;
 
+  // Prompt for user input to get category for ticketmaster
   function getCategory() {
     modal("Category", "What type of event are you looking for?", true, "Submit");
     $("#modal-submit").on("click", function () {

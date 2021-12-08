@@ -161,6 +161,8 @@ function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival) {
 function modal(title, info, isForm, btnText) {
 
   var content = $(".modal-content");
+
+  // Style
   if (title === "Error") {
     content.addClass("is-danger");
   }
@@ -209,8 +211,6 @@ function toggleModal() {
   }
 }
 
-$(".modal-close").on("click", toggleModal);
-$(".modal-background").on("click", toggleModal);
 
 // After get events button is clicked user is taken step by step through the input forms
 function start() {
@@ -232,7 +232,9 @@ function start() {
   });
 }
 
-// for testing modal form 
 document.querySelector("#get-events").addEventListener("click", function () {
   start();
 });
+
+$(".modal-close").on("click", toggleModal);
+$(".modal-background").on("click", toggleModal);

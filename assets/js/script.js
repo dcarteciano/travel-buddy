@@ -197,6 +197,7 @@ function modal(title, info, isForm, btnText) {
   toggleModal();
 }
 
+// auto called in modal, needs to be called if using additional custom buttons on modal
 function toggleModal() {
   var display = $(".modal");
   if (display.hasClass("is-active")) {
@@ -213,20 +214,7 @@ $(".modal-background").on("click", toggleModal);
 
 // After get events button is clicked user is taken step by step through the input forms
 function start() {
-  var hours;
   var cat;
-
-  function getHours() {
-    modal("Time", "How many hours do you have?", true, "Submit");
-    $("#modal-input").attr("type", "number");
-    $("#modal-submit").on("click", function () {
-      if (modalInput) {
-        hours = modalInput;
-        modalInput = "";
-        getCategory();
-      }
-    })
-  }
 
   function getCategory() {
     modal("Category", "What type of event are you looking for?", true, "Submit");
@@ -266,7 +254,7 @@ function start() {
       modalContentEl.addClass("is-warning");
     })
   }
-  getHours();
+  getCategory();
 }
 
 // for testing modal form 

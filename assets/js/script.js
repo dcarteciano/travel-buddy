@@ -231,28 +231,19 @@ function start() {
     modal("Location", "Use current address or enter a starting address to get drive time");
     var modalContentEl = $(".modal-content")
     var paginationEl = $("<div>").addClass("pagination").attr("aria-label", "pagination");
-    var btn1 = $("<button>").addClass("button is-success pagination-previous");
+    var posBtn = $("<button>").addClass("button is-success pagination-previous");
     var iSpanEl = $("<span>").addClass("icon");
     var iconEl = $("<i>").addClass("fas fa-location-arrow").attr("aria-hidden", "true");
     var textSpanEl = $("<span>").text("My Location");
     iSpanEl.append(iconEl);
-    btn1.append(iSpanEl, textSpanEl);
-    var btn2 = $("<button>").addClass("button is-success pagination-next").text("Custom Location");
-    paginationEl.append(btn1, btn2);
-    modalContentEl.append(paginationEl);
+    posBtn.append(iSpanEl, textSpanEl);
+    modalContentEl.append(posBtn);
 
     display = $(".modal");
-    btn1.on("click", function () {
+    posBtn.on("click", function () {
       toggleModal();
-      getCurrentPos(cat, hours);
-
+      getCurrentPos(cat);
     });
-    btn2.on("click", function () {
-      toggleModal();
-      modal("Sorry", "This feature hasn't been added yet");
-      modalContentEl.removeClass("is-success");
-      modalContentEl.addClass("is-warning");
-    })
   }
   getCategory();
 }

@@ -135,6 +135,8 @@ function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, leaveByTime) 
 function modal(title, info, isForm, btnText) {
 
   var content = $(".modal-content");
+
+  // Style
   if (title === "Error") {
     content.addClass("is-danger");
   }
@@ -183,47 +185,31 @@ function toggleModal() {
   }
 }
 
-$(".modal-close").on("click", toggleModal);
-$(".modal-background").on("click", toggleModal);
 
 // After get events button is clicked user is taken step by step through the input forms
 function start() {
   var cat;
   
 
-  function getCategory() {
-    modal("Category", "What type of event are you looking for?", true, "Submit");
-    $("#modal-submit").on("click", function () {
-      if (modalInput) {
-        cat = modalInput;
-        modalInput = "";
-        locationType();
-      }
-    })
-  }
+  // Prompt for user input to get category for ticketmaster
+  modal("Category", "What type of event are you looking for?", true, "");
+  var btn = $("#modal-submit");
+  var iSpanEl = $("<span>").addClass("icon");
+  var iconEl = $("<i>").addClass("fas fa-location-arrow").attr("aria-hidden", "true");
+  var textSpanEl = $("<span>").text("Find Events");
+  iSpanEl.append(iconEl);
+  btn.append(iSpanEl, textSpanEl);
 
-  function locationType() {
-    modal("Location", "Use current address or enter a starting address to get drive time");
-    var modalContentEl = $(".modal-content")
-    var paginationEl = $("<div>").addClass("pagination").attr("aria-label", "pagination");
-    var posBtn = $("<button>").addClass("button is-success pagination-previous");
-    var iSpanEl = $("<span>").addClass("icon");
-    var iconEl = $("<i>").addClass("fas fa-location-arrow").attr("aria-hidden", "true");
-    var textSpanEl = $("<span>").text("My Location");
-    iSpanEl.append(iconEl);
-    posBtn.append(iSpanEl, textSpanEl);
-    modalContentEl.append(posBtn);
-
-    display = $(".modal");
-    posBtn.on("click", function () {
-      toggleModal();
-      getCurrentPos(cat);
-    });
-  }
-  getCategory();
+  $("#modal-submit").on("click", function () {
+    cat = modalInput;
+    modalInput = "";
+    getCurrentPos(cat);
+  });
 }
 
-// for testing modal form 
 document.querySelector("#get-events").addEventListener("click", function () {
   start();
 });
+
+$(".modal-close").on("click", toggleModal);
+$(".modal-background").on("click", toggleModal);

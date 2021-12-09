@@ -6,14 +6,14 @@ var curentLongitude;
 // last modal input, if value is needed elsewhere it should be stored in a separate var as a new input in modal will overwrite the var
 var modelInput;
 
-function getCurrentPos(cat, hours) {
+function getCurrentPos(cat) {
   currentLatitude = 0;
   curentLongitude = 0;
 
   function success(position) {
     currentLatitude = position.coords.latitude;
     curentLongitude = position.coords.longitude;
-    getApi(cat, hours, currentLatitude, curentLongitude);
+    getApi(cat, currentLatitude, curentLongitude);
   }
 
   function error() {
@@ -28,7 +28,7 @@ function getCurrentPos(cat, hours) {
 }
 
 // ticket master api to get events nearby and long/lat
-function getApi(cat, hours, currentLatitude, curentLongitude) {
+function getApi(cat, currentLatitude, curentLongitude) {
   var requestUrl =
     'https://app.ticketmaster.com/discovery/v2/events.json?classificationName=' +
     cat +
@@ -43,49 +43,41 @@ function getApi(cat, hours, currentLatitude, curentLongitude) {
       console.log('response', res);
       var eventArray = res.data._embedded.events;
       console.log('eventArray', eventArray);
-      buildList(eventArray, hours);
+      buildList(eventArray);
     })
     .catch(function (err) {
       modal("Error", "Could not connect to ticketmaster.com");
     });
 }
 
-function buildList(eventArray, hours) {
-  console.log(hours);
-  // takes the dateTime objects from the event array and pushes them to another array to be sorted by date and time
-  var dateTimeArr = [];
-  for (var i = 0; i < eventArray.length; i++) {
-    var tempTime = eventArray[i].dates.start.dateTime;
-    dateTimeArr.push(tempTime)
-  }
-  dateTimeArr.sort()
+function buildList(eventArray) {
   // takes the different objects of the event array and stores them to seperate variables
   for (var i = 0; i < eventArray.length; i++) {
     var eventTitle = eventArray[i].name;
-    var eventTime = dateTimeArr[i];
+    var eventTime = eventArray[i].dates.start.dateTime;
     var eventInfo = eventArray[i]._embedded.venues[0].name;
     var eventSubInfo = eventArray[i].url;
     var eventLat = eventArray[i]._embedded.venues[0].location.latitude;
     var eventLong = eventArray[i]._embedded.venues[0].location.longitude;
     getMapData(currentLatitude + ',' + curentLongitude, eventLat + ',' + eventLong,
-      eventTitle, eventTime, eventInfo, eventSubInfo, hours);
+      eventTitle, eventTime, eventInfo, eventSubInfo);
   }
-
-  console.log(dateTimeArr);
 }
 
 // from and to can either be "lat,lon" or an adress
-function getMapData(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, hours) {
+function getMapData(from, to, eventTitle, eventTime, eventInfo, eventSubInfo) {
   axios.get('https://www.mapquestapi.com/directions/v2/route?key=diSZVTUqXE3YRm5IRyRe5IWmMHZWbypB&from=' + from + '&to=' + to + '')
     .then(function (res) {
       if (res.data.route.realTime > 0) {
         if (res.data.route.realTime < 10000000) {
+          var leaveByTime = moment(eventTime).subtract(res.data.route.realTime, 'seconds');
           // returns drivetime data in seconds based off of realtime traffic conditions
-          enoughTime(res.data.route.realTime, eventTitle, eventTime, eventInfo, eventSubInfo);
+          addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, leaveByTime);
         }
         else {
+          var leaveByTime = moment(eventTime).subtract(res.data.route.realTime, 'seconds');
           // if realtime data is unavailable, returns calculated drivetime time in seconds
-          enoughTime(res.data.route.time, eventTitle, eventTime, eventInfo, eventSubInfo);
+          addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, leaveByTime);
         }
       }
       else {
@@ -93,34 +85,15 @@ function getMapData(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, ho
       }
     })
     .catch(function (err) {
+      console.log(err);
       modal("Error", "Could not connect to mapquest.com");
     })
 }
 
-// function to check if you have enough time to get to an event
-// input is the drive time in seconds and the start time of the event.
-function enoughTime(driveTime, eventTitle, eventTime, eventInfo, eventSubInfo) {
-  var arriveTime = moment().add(driveTime, 'seconds').format();
-  //outputs false if the arival time is after the event start time
-  if (moment(arriveTime).isAfter(eventTime)) {
-    var arrival = false;
-    addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival);
-    //outputs true if it starts after the arrival time
-  } else {
-    var arrival = true;
-    addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival);
-  }
-}
+function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, leaveByTime) {
 
-function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival) {
-  if (arrival) {
-    arrival = 'Yes!';
-  } else {
-    arrival = 'No!';
-  }
   eventTime = moment(eventTime).format('MMMM Do YYYY, h:mm:ss a');
-
-  console.log(eventTime)
+  leaveByTime = moment(leaveByTime).format('LT');
 
   // create a container for event
   var listEl = $('<div>');
@@ -142,7 +115,7 @@ function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival) {
   var listSecColBox = $('<div>');
   listSecColBox.addClass('box').appendTo(listSecColEl);
   var listEventDriveTime = $('<p>');
-  listEventDriveTime.addClass('subtitle').text('Can you make it? ' + arrival).appendTo(listSecColBox);
+  listEventDriveTime.addClass('subtitle').text('Leave by ' + leaveByTime).appendTo(listSecColBox);
 
   // https://google.com/maps/dir//Vivint+Arena/@40.6219482,-112.0623527,11
 

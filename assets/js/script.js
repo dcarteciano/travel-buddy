@@ -170,15 +170,14 @@ function modal(title, info, isForm, btnText) {
     content.addClass("is-success");
   }
 
-  var headEl;
-  //#region Form
+  // Displays Form
   if (isForm) {
     var formEl = $("<form>").addClass("field is-success");
-    headEl = $("<label>").addClass("label message-header").text(title);
-    var infoEl = $("<p>").addClass("message-body").text(info);
+    var labelEl = $("<label>").addClass("label message-header").text(title);
+    var infoEL = $("<p>").addClass("message-body").text(info);
     var inputEl = $("<input>").addClass("input is-success").attr("id", "modal-input");
     var btnEl = $("<button>").addClass("button is-success").attr("id", "modal-submit").text(btnText);
-    formEl.append(headEl, infoEl, inputEl);
+    formEl.append(labelEl, infoEL, inputEl);
     content.append(formEl, btnEl);
 
     btnEl.on("click", function (event) {
@@ -187,18 +186,15 @@ function modal(title, info, isForm, btnText) {
       toggleModal();
     });
   }
-  //#endregion
 
-  //#region Message
+  // Displays Message
   else {
-    var textEl = $("<p>");
-    headEl = $("<strong>").addClass("message-header").text(title);
-    var infoEl = $("<p>").addClass("message-body").text(info);
-    textEl.append(headEl, infoEl);
+    textEl = $("<p>");
+    titleEl = $("<strong>").addClass("message-header").text(title);
+    infoEl = $("<p>").addClass("message-body").text(info);
+    textEl.append(titleEl, infoEl);
     content.append(textEl);
   }
-  headEl.append(closeBtn);
-  //#endregion
 
   toggleModal();
 }
@@ -215,12 +211,30 @@ function toggleModal() {
   }
 }
 
+
+// After get events button is clicked user is taken step by step through the input forms
 function start() {
-  modal("Test", "This is a test");
+  var cat;
+
+  // Prompt for user input to get category for ticketmaster
+  modal("Category", "What type of event are you looking for?", true, "");
+  var btn = $("#modal-submit");
+  var iSpanEl = $("<span>").addClass("icon");
+  var iconEl = $("<i>").addClass("fas fa-location-arrow").attr("aria-hidden", "true");
+  var textSpanEl = $("<span>").text("Find Events");
+  iSpanEl.append(iconEl);
+  btn.append(iSpanEl, textSpanEl);
+
+  $("#modal-submit").on("click", function () {
+    cat = modalInput;
+    modalInput = "";
+    getCurrentPos(cat);
+  });
 }
 
 document.querySelector("#get-events").addEventListener("click", function () {
   start();
 });
 
+$(".modal-close").on("click", toggleModal);
 $(".modal-background").on("click", toggleModal);

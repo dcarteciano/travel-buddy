@@ -1,19 +1,102 @@
 var addButton = document.querySelector('#add-item');
 var events = document.querySelector('#events');
-var radius = 100; //search radius for ticketmaster events
+var movies = document.querySelector('#movies');
 var currentLatitude;
 var curentLongitude;
 // last modal input, if value is needed elsewhere it should be stored in a separate var as a new input in modal will overwrite the var
 var modelInput;
 
-function getCurrentPos(cat) {
+function getFilms() {
+  var films = {
+    "url": "https://api-gate2.movieglu.com/filmsNowShowing/?n=15",
+    "method": "GET",
+    "timeout": 0,
+    "headers": {
+      "api-version": "v200",
+      "Authorization": "Basic VU5JVl81NDpnYUhaR0NxNm1MU2o=",
+      "client": "UNIV_54",
+      "x-api-key": "KJxQ3LIeJi9v1XVAKbzcc5R0tCYpdsID6aAGkv1R",
+      "device-datetime": "2021-12-09T19:51:20+0000",
+      "territory": "US",
+      },
+    };
+  $.ajax(films).done(function (res) {
+    var filmsArray = res.films;
+    console.log('filmsArray', filmsArray);
+    buildFilmsList(filmsArray);
+  });
+
+}
+
+function buildFilmsList(filmsArray) {
+  // takes the different objects of the event array and stores them to seperate variables
+  for (var i = 0; i < filmsArray.length; i++) {
+    var filmTitle = filmsArray[i].film_name;
+    var filmID = filmsArray[i].film_id;
+    var filmInfo = filmsArray[i].synopsis_long;
+    var filmPoster = filmsArray[i].images.poster[1].medium.film_image;
+    var filmTrailer = filmsArray[i].film_trailer;
+    var filmIMDB = filmsArray[i].imdb_id;
+    var filmRatingImage = filmsArray[i].age_rating[0].age_rating_image;
+    addListCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer)
+  }
+}
+
+function addListCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer){
+
+  var filmColumns = $('<div>');
+  filmColumns.addClass('column is-narrow');
+  var cardDiv = $('<div>');
+  cardDiv.addClass('card').attr('style', 'width: 200px');
+  var cardImageDiv = $('<div>');
+  cardImageDiv.addClass('card-image').appendTo(cardDiv);
+  var cardImageFigure = $('<figure>');
+  cardImageFigure.addClass('image is-200x300').appendTo(cardImageDiv);
+  var cardImg = $('<img>');
+  cardImg.attr('src', filmPoster)
+    .attr('alt', filmTitle)
+    .attr('id', filmID + 'poster')
+    .appendTo(cardImageFigure);
+  var cardContentDiv = $('<div>');
+  cardContentDiv.addClass('card-content').appendTo(cardDiv);
+  var cardTitle = $('<p>');
+  cardTitle.addClass('content')
+    .text(filmTitle)
+    .appendTo(cardContentDiv);
+  var cardIconSpan = $('<span>');
+  cardIconSpan.addClass('icon').appendTo(cardTitle);
+  var cardIcon = $('<i>');
+  cardIcon.addClass('fas fa-info-circle')
+    .attr('id', filmID + 'info')
+    .appendTo(cardIconSpan);
+  var trailerButton = $('<a>')
+    .attr('href', filmTrailer)
+    .attr('target', '_blank')
+    .addClass('button is-success mx-3')
+    .text('Watch Trailer');
+    trailerButton.appendTo(cardContentDiv);
+
+  cardDiv.appendTo(filmColumns);
+  filmColumns.appendTo(movies);
+
+  $('#' + filmID + 'poster').on("click", function () {
+    getCurrentPos(filmID);
+  });
+
+  $('#' + filmID + 'info').on("click", function () {
+    modal(filmTitle, filmInfo, false, 'Close');
+  });
+  
+}
+
+function getCurrentPos(filmID) {
   currentLatitude = 0;
   curentLongitude = 0;
 
   function success(position) {
     currentLatitude = position.coords.latitude;
     curentLongitude = position.coords.longitude;
-    getApi(cat, currentLatitude, curentLongitude);
+    getApi(filmID, currentLatitude, curentLongitude);
   }
 
   function error() {
@@ -27,39 +110,46 @@ function getCurrentPos(cat) {
   }
 }
 
-// ticket master api to get events nearby and long/lat
-function getApi(cat, currentLatitude, curentLongitude) {
-  var requestUrl =
-    'https://app.ticketmaster.com/discovery/v2/events.json?classificationName=' +
-    cat +
-    '&latlong=' +
-    currentLatitude + ',' + curentLongitude +
-    '&radius=' + radius + '&unit=miles' +
-    '&sort=date,asc' + 
-    '&apikey=OWIi7laz1qDwxQmUKHndhZXCYa98oavA';
+// filmGlu api to get showtimes for selected film nearby and long/lat
+function getApi(currentLatitude, currentLongitude) {
+  var filmShowtimes = {
+    "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=315323&date=2021-12-09&n=25",
+    "method": "GET",
+    "timeout": 0,
+    "headers": {
+      "geolocation": currentLatitude, currentLongitude,
+      "api-version": "v200",
+      "Authorization": "Basic VU5JVl81NDpnYUhaR0NxNm1MU2o=",
+      "client": "UNIV_54",
+      "x-api-key": "KJxQ3LIeJi9v1XVAKbzcc5R0tCYpdsID6aAGkv1R",
+      "device-datetime": "2021-12-09T19:51:20+0000",
+      "territory": "US",
+      },
+    };
+    console.log(filmShowtimes)
 
-  axios.get(requestUrl)
+  axios.get(filmShowtimes)
     .then(function (res) {
-      var eventArray = res.data._embedded.events;
-      console.log('eventArray', eventArray);
-      buildList(eventArray);
+      var showtimeArray = cinemas;
+      console.log('showtimeArray', showtimeArray);
+      buildList(showtimeArray);
     })
     .catch(function (err) {
       modal("Error", "Could not connect to ticketmaster.com");
     });
 }
 
-function buildList(eventArray) {
+function buildList(showtimeArray) {
   // takes the different objects of the event array and stores them to seperate variables
-  for (var i = 0; i < eventArray.length; i++) {
-    var eventTitle = eventArray[i].name;
-    var eventTime = eventArray[i].dates.start.dateTime;
-    var eventInfo = eventArray[i]._embedded.venues[0].name;
-    var eventURL = eventArray[i].url;
-    var eventSubInfo = eventArray[i].pleaseNote;
-    var eventLat = eventArray[i]._embedded.venues[0].location.latitude;
-    var eventLong = eventArray[i]._embedded.venues[0].location.longitude;
-    var eventPhoto = eventArray[i].images[0].url;
+  for (var i = 0; i < showtimeArray.length; i++) {
+    var eventTitle = showtimeArray[i].name;
+    var eventTime = showtimeArray[i].dates.start.dateTime;
+    var eventInfo = showtimeArray[i]._embedded.venues[0].name;
+    var eventURL = showtimeArray[i].url;
+    var eventSubInfo = showtimeArray[i].pleaseNote;
+    var eventLat = showtimeArray[i]._embedded.venues[0].location.latitude;
+    var eventLong = showtimeArray[i]._embedded.venues[0].location.longitude;
+    var eventPhoto = showtimeArray[i].images[0].url;
     getMapData(currentLatitude + ',' + curentLongitude, eventLat + ',' + eventLong,
       eventTitle, eventTime, eventInfo, eventSubInfo, eventURL, eventPhoto);
   }
@@ -90,6 +180,8 @@ function getMapData(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, ev
       modal("Error", "Could not connect to mapquest.com");
     })
 }
+
+
 
 function addListEl(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, leaveByTime, eventURL, eventPhoto) {
 
@@ -228,7 +320,7 @@ function start() {
 }
 
 document.querySelector("#get-events").addEventListener("click", function () {
-  start();
+  getFilms();
 });
 
 $(".modal-close").on("click", toggleModal);

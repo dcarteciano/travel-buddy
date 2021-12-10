@@ -6,14 +6,14 @@ var curentLongitude;
 // last modal input, if value is needed elsewhere it should be stored in a separate var as a new input in modal will overwrite the var
 var modelInput;
 
-function getCurrentPos(cat, hours) {
+function getCurrentPos(cat) {
   currentLatitude = 0;
   curentLongitude = 0;
 
   function success(position) {
     currentLatitude = position.coords.latitude;
     curentLongitude = position.coords.longitude;
-    getApi(cat, hours, currentLatitude, curentLongitude);
+    getApi(cat, currentLatitude, curentLongitude);
   }
 
   function error() {
@@ -28,63 +28,57 @@ function getCurrentPos(cat, hours) {
 }
 
 // ticket master api to get events nearby and long/lat
-function getApi(cat, hours, currentLatitude, curentLongitude) {
+function getApi(cat, currentLatitude, curentLongitude) {
   var requestUrl =
     'https://app.ticketmaster.com/discovery/v2/events.json?classificationName=' +
     cat +
     '&latlong=' +
     currentLatitude + ',' + curentLongitude +
     '&radius=' + radius + '&unit=miles' +
+    '&sort=date,asc' + 
     '&apikey=OWIi7laz1qDwxQmUKHndhZXCYa98oavA';
 
   axios.get(requestUrl)
     .then(function (res) {
-      console.log('response', res);
       var eventArray = res.data._embedded.events;
       console.log('eventArray', eventArray);
-      buildList(eventArray, hours);
+      buildList(eventArray);
     })
     .catch(function (err) {
       modal("Error", "Could not connect to ticketmaster.com");
     });
 }
 
-function buildList(eventArray, hours) {
-  console.log(hours);
-  // takes the dateTime objects from the event array and pushes them to another array to be sorted by date and time
-  var dateTimeArr = [];
-  for (var i = 0; i < eventArray.length; i++) {
-    var tempTime = eventArray[i].dates.start.dateTime;
-    dateTimeArr.push(tempTime)
-  }
-  dateTimeArr.sort()
+function buildList(eventArray) {
   // takes the different objects of the event array and stores them to seperate variables
   for (var i = 0; i < eventArray.length; i++) {
     var eventTitle = eventArray[i].name;
-    var eventTime = dateTimeArr[i];
+    var eventTime = eventArray[i].dates.start.dateTime;
     var eventInfo = eventArray[i]._embedded.venues[0].name;
-    var eventSubInfo = eventArray[i].url;
+    var eventURL = eventArray[i].url;
+    var eventSubInfo = eventArray[i].pleaseNote;
     var eventLat = eventArray[i]._embedded.venues[0].location.latitude;
     var eventLong = eventArray[i]._embedded.venues[0].location.longitude;
+    var eventPhoto = eventArray[i].images[0].url;
     getMapData(currentLatitude + ',' + curentLongitude, eventLat + ',' + eventLong,
-      eventTitle, eventTime, eventInfo, eventSubInfo, hours);
+      eventTitle, eventTime, eventInfo, eventSubInfo, eventURL, eventPhoto);
   }
-
-  console.log(dateTimeArr);
 }
 
 // from and to can either be "lat,lon" or an adress
-function getMapData(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, hours) {
+function getMapData(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, eventURL, eventPhoto) {
   axios.get('https://www.mapquestapi.com/directions/v2/route?key=diSZVTUqXE3YRm5IRyRe5IWmMHZWbypB&from=' + from + '&to=' + to + '')
     .then(function (res) {
       if (res.data.route.realTime > 0) {
         if (res.data.route.realTime < 10000000) {
+          var leaveByTime = moment(eventTime).subtract(res.data.route.realTime, 'seconds');
           // returns drivetime data in seconds based off of realtime traffic conditions
-          enoughTime(res.data.route.realTime, eventTitle, eventTime, eventInfo, eventSubInfo);
+          addListEl(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, leaveByTime, eventURL, eventPhoto);
         }
         else {
+          var leaveByTime = moment(eventTime).subtract(res.data.route.realTime, 'seconds');
           // if realtime data is unavailable, returns calculated drivetime time in seconds
-          enoughTime(res.data.route.time, eventTitle, eventTime, eventInfo, eventSubInfo);
+          addListEl(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, leaveByTime, eventURL, eventPhoto);
         }
       }
       else {
@@ -92,34 +86,15 @@ function getMapData(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, ho
       }
     })
     .catch(function (err) {
+      console.log(err);
       modal("Error", "Could not connect to mapquest.com");
     })
 }
 
-// function to check if you have enough time to get to an event
-// input is the drive time in seconds and the start time of the event.
-function enoughTime(driveTime, eventTitle, eventTime, eventInfo, eventSubInfo) {
-  var arriveTime = moment().add(driveTime, 'seconds').format();
-  //outputs false if the arival time is after the event start time
-  if (moment(arriveTime).isAfter(eventTime)) {
-    var arrival = false;
-    addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival);
-    //outputs true if it starts after the arrival time
-  } else {
-    var arrival = true;
-    addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival);
-  }
-}
+function addListEl(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, leaveByTime, eventURL, eventPhoto) {
 
-function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival) {
-  if (arrival) {
-    arrival = 'Yes!';
-  } else {
-    arrival = 'No!';
-  }
-  eventTime = moment(eventTime).format('MMMM Do YYYY, h:mm:ss a');
-
-  console.log(eventTime)
+  eventTime = moment(eventTime).format('MMMM Do YYYY, h:mma');
+  leaveByTime = moment(leaveByTime).format('h:mma');
 
   // create a container for event
   var listEl = $('<div>');
@@ -132,25 +107,44 @@ function addListEl(eventTitle, eventTime, eventInfo, eventSubInfo, arrival) {
   listFirstColBox.addClass('box').attr('style', 'width: 200px;').appendTo(listFirstColEl);
   var listEventTitle = $('<p>');
   listEventTitle.addClass('title is-4').text(eventTitle).appendTo(listFirstColBox);
-  var listEventInfo = $('<p>');
-  listEventInfo.addClass('title is-5').text(eventInfo).appendTo(listFirstColBox);
   var listEventTime = $('<p>');
-  listEventTime.addClass('title is-6').text(eventTime).appendTo(listFirstColBox);
+  listEventTime.addClass('title is-6 has-text-right').text(eventTime).appendTo(listFirstColBox);
+  var listEventDriveTime = $('<p>');
+  listEventDriveTime.addClass('title is-6 has-text-right').text('Leave by ' + leaveByTime).appendTo(listFirstColBox);
+
   var listSecColEl = $('<div>');
   listSecColEl.addClass('column').appendTo(listColEl);
   var listSecColBox = $('<div>');
   listSecColBox.addClass('box').appendTo(listSecColEl);
-  var listEventDriveTime = $('<p>');
-  listEventDriveTime.addClass('subtitle').text('Can you make it? ' + arrival).appendTo(listSecColBox);
-
-  // https://google.com/maps/dir//Vivint+Arena/@40.6219482,-112.0623527,11
+  var listEventInfo = $('<p>');
+  listEventInfo.addClass('title is-5').text(eventInfo).appendTo(listSecColBox);
+  var listEventNote = $('<p>');
+  listEventNote.addClass('is-size-6').text(eventSubInfo).appendTo(listSecColBox);
+  var listEventNoteSpace = $('<br>');
+  listEventNoteSpace.addClass('is-size-6').appendTo(listSecColBox);
 
   var listEventSubInfo = $('<a>')
-    .attr('href', eventSubInfo)
+    .attr('href', eventURL)
     .attr('target', '_blank')
-    .addClass('button is-success')
+    .addClass('button is-success mx-3')
     .text('Get Tickets');
   listEventSubInfo.appendTo(listSecColBox);
+
+  var titleFixed = eventInfo.split(' ').join('+');
+  // https://www.google.com/maps/dir/40.4752752,-111.9263536/The+Depot/@40.6257634,-112.0496547,11
+  var listEventDirections = $('<a>')
+    .attr('href', 'https://www.google.com/maps/dir/' + from + '/' + titleFixed)
+    .attr('target', '_blank')
+    .addClass('button is-success mx-3')
+    .text('Get Directions');
+  listEventDirections.appendTo(listSecColBox);
+
+  var listEventPhotoFigure = $('<figure>');
+  listEventPhotoFigure.addClass('image is-16by9');
+  var listEventPhoto = $('<img>');
+  listEventPhoto.attr('src', eventPhoto);
+  listEventPhoto.appendTo(listEventPhotoFigure);
+  listEventPhotoFigure.appendTo(listSecColBox);
 
   listEl.appendTo(events);
 };
@@ -216,6 +210,7 @@ function toggleModal() {
 // After get events button is clicked user is taken step by step through the input forms
 function start() {
   var cat;
+  
 
   // Prompt for user input to get category for ticketmaster
 

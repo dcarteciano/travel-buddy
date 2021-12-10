@@ -38,11 +38,11 @@ function buildFilmsList(filmsArray) {
     var filmTrailer = filmsArray[i].film_trailer;
     var filmIMDB = filmsArray[i].imdb_id;
     var filmRatingImage = filmsArray[i].age_rating[0].age_rating_image;
-    addListCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer)
+    addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer)
   }
 }
 
-function addListCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer){
+function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer){
 
   var filmColumns = $('<div>');
   filmColumns.addClass('column is-narrow');

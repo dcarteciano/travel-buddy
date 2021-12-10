@@ -164,14 +164,14 @@ function modal(title, info, isForm, btnText) {
     content.addClass("is-success");
   }
 
-  //#region Form
+  // Displays Form
   if (isForm) {
     var formEl = $("<form>").addClass("field is-success");
     var labelEl = $("<label>").addClass("label message-header").text(title);
-    var infoEl = $("<p>").addClass("message-body").text(info);
+    var infoEL = $("<p>").addClass("message-body").text(info);
     var inputEl = $("<input>").addClass("input is-success").attr("id", "modal-input");
     var btnEl = $("<button>").addClass("button is-success").attr("id", "modal-submit").text(btnText);
-    formEl.append(labelEl, infoEl, inputEl);
+    formEl.append(labelEl, infoEL, inputEl);
     content.append(formEl, btnEl);
 
     btnEl.on("click", function (event) {
@@ -180,9 +180,8 @@ function modal(title, info, isForm, btnText) {
       toggleModal();
     });
   }
-  //#endregion
 
-  //#region Message
+  // Displays Message
   else {
     textEl = $("<p>");
     titleEl = $("<strong>").addClass("message-header").text(title);
@@ -190,7 +189,6 @@ function modal(title, info, isForm, btnText) {
     textEl.append(titleEl, infoEl);
     content.append(textEl);
   }
-  //#endregion
 
   toggleModal();
 }
@@ -207,58 +205,22 @@ function toggleModal() {
   }
 }
 
+
 // After get events button is clicked user is taken step by step through the input forms
 function start() {
   var cat;
   
 
   // Prompt for user input to get category for ticketmaster
-
-  //#region dropdown
-  modal("Category", "What type of event are you looking for?");
-  var dropEl = $("<div>").addClass("dropdown");
-  var dropTrigEl = $("<div>").addClass("dropdown-trigger");
-  var dropBtnEl = $("<button>").addClass("button").attr("aria-haspopup", "true").attr("aria-controls", "dropdown-menu");
-  var dropTextEl = $("<span>").text("Category");
-  var dropBtnSpanEl = $("<span>").addClass("icon is-small");
-  var dropBtnIEl = $("<i>").addClass("fas fa-angle-down").attr("aria-hidden", "true");
-
-  dropBtnSpanEl.append(dropBtnIEl);
-  dropBtnEl.append(dropTextEl, dropBtnSpanEl);
-  dropTrigEl.append(dropBtnEl);
-
-  var dropMenuEL = $("<div>").addClass("dropdown-menu").attr("id", "dropdown-menu").attr("role", "menu");
-  var dropContentEl = $("<div>").addClass("dropdown-content");
-  var categoriesEl = [
-    "Any",
-    "Music",
-    "Sports",
-    "Arts",
-    "Concerts",
-    "Family",
-    "Fairs"
-  ];
-  for (i = 0; i < categoriesEl.length; i++) {
-    dropContentEl.append($("<div>").addClass("dropdown-item").text(categoriesEl[i]));
-  }
-  dropMenuEL.append(dropContentEl);
-  dropEl.append(dropTrigEl, dropMenuEL);
-
-  btnEl = $("<button>").addClass("button is-success").attr("id", "modal-submit")
+  modal("Category", "What type of event are you looking for?", true, "");
+  var btn = $("#modal-submit");
   var iSpanEl = $("<span>").addClass("icon");
   var iconEl = $("<i>").addClass("fas fa-location-arrow").attr("aria-hidden", "true");
   var textSpanEl = $("<span>").text("Find Events");
   iSpanEl.append(iconEl);
-  btnEl.append(iSpanEl, textSpanEl);
+  btn.append(iSpanEl, textSpanEl);
 
-  $(".modal-content").append(dropEl, btnEl);
-  //#endregion dropdown
-
-  dropBtnEl.on("click", function(){
-    dropEl.addClass("is-active");
-  })
-
-  btnEl.on("click", function () {
+  $("#modal-submit").on("click", function () {
     cat = modalInput;
     modalInput = "";
     getCurrentPos(cat);

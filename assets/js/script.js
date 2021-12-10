@@ -206,29 +206,9 @@ function toggleModal() {
 }
 
 
-// After get events button is clicked user is taken step by step through the input forms
-function start() {
-  var cat;
-  
-
-  // Prompt for user input to get category for ticketmaster
-  modal("Category", "What type of event are you looking for?", true, "");
-  var btn = $("#modal-submit");
-  var iSpanEl = $("<span>").addClass("icon");
-  var iconEl = $("<i>").addClass("fas fa-location-arrow").attr("aria-hidden", "true");
-  var textSpanEl = $("<span>").text("Find Events");
-  iSpanEl.append(iconEl);
-  btn.append(iSpanEl, textSpanEl);
-
-  $("#modal-submit").on("click", function () {
-    cat = modalInput;
-    modalInput = "";
-    getCurrentPos(cat);
-  });
-}
 
 document.querySelector("#get-events").addEventListener("click", function () {
-  start();
+  modal("Error" , "This button is not assigned");
 });
 
 $(".modal-close").on("click", toggleModal);

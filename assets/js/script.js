@@ -12,17 +12,9 @@ function getFilms() {
     "method": "GET",
     "timeout": 0,
     "headers": {
-<<<<<<< HEAD
-      "api-version": "v200",
-      "Authorization": "Basic VU5JVl81NTpMMzVtemRyenhUQ3Q=",
-      "client": "UNIV_54",
-      "x-api-key": "5SNa2JxuS81Ez99j1qXhA8bWvOiWsWjd14bJtU1T",
-      "device-datetime": "2021-12-09T19:51:20+0000",
-=======
       "client": "PERS_101",
       "x-api-key": "5SNa2JxuS81Ez99j1qXhA8bWvOiWsWjd14bJtU1T",
       "authorization": "Basic VU5JVl81NTpMMzVtemRyenhUQ3Q=",
->>>>>>> feature/showtimes
       "territory": "US",
       "api-version": "v200",
       "geolocation": "40.4896;-111.9400",
@@ -120,38 +112,6 @@ function getCurrentPos(filmID) {
   }
 }
 
-<<<<<<< HEAD
-// filmGlu api to get showtimes for selected film nearby and long/lat
-function getApi(filmID, currentLatitude, currentLongitude) {
-
-  console.log(filmID);
-  var filmShowtimes = {
-    "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=315323&date=2021-12-09&n=25",
-    "method": "GET",
-    "timeout": 0,
-    "headers": {
-      "geolocation": currentLatitude, currentLongitude,
-      "api-version": "v200",
-      "Authorization": "Basic VU5JVl81NTpMMzVtemRyenhUQ3Q=",
-      "client": "UNIV_54",
-      "x-api-key": "5SNa2JxuS81Ez99j1qXhA8bWvOiWsWjd14bJtU1T",
-      "device-datetime": "2021-12-09T19:51:20+0000",
-      "territory": "US",
-      },
-    };
-    console.log(filmShowtimes)
-
-  axios.get(filmShowtimes)
-    .then(function (res) {
-      var showtimeArray = cinemas;
-      console.log('showtimeArray', showtimeArray);
-      buildList(showtimeArray);
-    })
-    .catch(function (err) {
-      modal("Error", "Could not connect to ticketmaster.com");
-    });
-}
-=======
 //filmGlu api to get showtimes for selected film nearby and long/lat
 function getApi(filmID, currentLatitude, curentLongitude) {
   // create todays date and format like in line 129
@@ -180,7 +140,6 @@ console.log(showtimes)
 };
   
 getApi();
->>>>>>> feature/showtimes
 
 function buildList(showtimeArray) {
   // takes the different objects of the event array and stores them to seperate variables

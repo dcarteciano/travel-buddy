@@ -13,8 +13,8 @@ function getFilms() {
     "timeout": 0,
     "headers": {
       "client": "PERS_101",
-      "x-api-key": "td2siOlX5g1hBiJBvMmef8Bn5OhuWPhP8oXcEvW7",
-      "authorization": "Basic UEVSU18xMDE6RDl6OUVCdjc1MGtz",
+      "x-api-key": "5SNa2JxuS81Ez99j1qXhA8bWvOiWsWjd14bJtU1T",
+      "authorization": "Basic VU5JVl81NTpMMzVtemRyenhUQ3Q=",
       "territory": "US",
       "api-version": "v200",
       "geolocation": "40.4896;-111.9400",
@@ -113,9 +113,10 @@ function getCurrentPos(filmID) {
 }
 
 //filmGlu api to get showtimes for selected film nearby and long/lat
-function getApi() {
+function getApi(filmID, currentLatitude, curentLongitude) {
+  // create todays date and format like in line 129
   var showtimes = {
-  "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=315323&date=2021-12-10&n=15",
+  "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=" + filmID + "&date=2021-12-10&n=15",
   "method": "GET",
   "timeout": 0,
   "headers": {
@@ -124,8 +125,8 @@ function getApi() {
     "authorization": "Basic UEVSU18xMDE6RDl6OUVCdjc1MGtz",
     "territory": "US",
     "api-version": "v200",
-    "geolocation": "40.4896;-111.9400",
-    "device-datetime": "2021-12-10T15:43:20+0000",
+    "geolocation": currentLatitude + ";" + currentLongitude,
+    "device-datetime": "2021-12-10T15:43:20+0000", //moment().format()
   },
 };
 console.log(showtimes)

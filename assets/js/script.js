@@ -112,6 +112,8 @@ function getCurrentPos(filmID) {
 
 // filmGlu api to get showtimes for selected film nearby and long/lat
 function getApi(filmID, currentLatitude, currentLongitude) {
+
+  console.log(filmID);
   var filmShowtimes = {
     "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=315323&date=2021-12-09&n=25",
     "method": "GET",
@@ -142,14 +144,14 @@ function getApi(filmID, currentLatitude, currentLongitude) {
 function buildList(showtimeArray) {
   // takes the different objects of the event array and stores them to seperate variables
   for (var i = 0; i < showtimeArray.length; i++) {
-    var eventTitle = showtimeArray[i].name;
-    var eventTime = showtimeArray[i].dates.start.dateTime;
-    var eventInfo = showtimeArray[i]._embedded.venues[0].name;
-    var eventURL = showtimeArray[i].url;
-    var eventSubInfo = showtimeArray[i].pleaseNote;
-    var eventLat = showtimeArray[i]._embedded.venues[0].location.latitude;
-    var eventLong = showtimeArray[i]._embedded.venues[0].location.longitude;
-    var eventPhoto = showtimeArray[i].images[0].url;
+    var showtimeTitle = showtimeArray[i].name;
+    var showtimeTime = showtimeArray[i].dates.start.dateTime;
+    var showtimeInfo = showtimeArray[i]._embedded.venues[0].name;
+    var showtimeURL = showtimeArray[i].url;
+    var showtimeSubInfo = showtimeArray[i].pleaseNote;
+    var showtimeLat = showtimeArray[i]._embedded.venues[0].location.latitude;
+    var showtimeLong = showtimeArray[i]._embedded.venues[0].location.longitude;
+    var showtimePhoto = showtimeArray[i].images[0].url;
     getMapData(currentLatitude + ',' + curentLongitude, eventLat + ',' + eventLong,
       eventTitle, eventTime, eventInfo, eventSubInfo, eventURL, eventPhoto);
   }

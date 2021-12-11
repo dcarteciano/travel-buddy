@@ -135,7 +135,7 @@ function getApi(currentLatitude, currentLongitude) {
       buildList(showtimeArray);
     })
     .catch(function (err) {
-      modal("Error", "Could not connect to ticketmaster.com");
+      modal("Error", "Could not connect to movieglu.com");
     });
 }
 
@@ -180,8 +180,6 @@ function getMapData(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, ev
       modal("Error", "Could not connect to mapquest.com");
     })
 }
-
-
 
 function addListEl(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, leaveByTime, eventURL, eventPhoto) {
 

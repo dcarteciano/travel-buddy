@@ -1,6 +1,6 @@
 var addButton = document.querySelector('#add-item');
-var events = document.querySelector('#events');
 var movies = document.querySelector('#movies');
+var showtimes = document.querySelector('#showtimes');
 var currentLatitude;
 var curentLongitude;
 // last modal input, if value is needed elsewhere it should be stored in a separate var as a new input in modal will overwrite the var
@@ -138,39 +138,127 @@ console.log(showtimes)
     
   })
 };
-  
-getApi();
 
 function buildList(showtimeArray) {
   // takes the different objects of the event array and stores them to seperate variables
   for (var i = 0; i < showtimeArray.length; i++) {
-    var showtimeTitle = showtimeArray[i].name;
-    var showtimeTime = showtimeArray[i].dates.start.dateTime;
-    var showtimeInfo = showtimeArray[i]._embedded.venues[0].name;
-    var showtimeURL = showtimeArray[i].url;
-    var showtimeSubInfo = showtimeArray[i].pleaseNote;
-    var showtimeLat = showtimeArray[i]._embedded.venues[0].location.latitude;
-    var showtimeLong = showtimeArray[i]._embedded.venues[0].location.longitude;
-    var showtimePhoto = showtimeArray[i].images[0].url;
-    getMapData(currentLatitude + ',' + curentLongitude, eventLat + ',' + eventLong,
-      eventTitle, eventTime, eventInfo, eventSubInfo, eventURL, eventPhoto);
+    var cinemaTitle = showtimeArray[i].cinema_name;
+    var showtimeTime = showtimeArray[i].showings.Standard.times[0].start_time;
+    var cinemaID = showtimeArray[i].cinema_id;
+    addListEl(cinemaTitle, showtimeTime, cinemaID);
   }
 }
 
+function addListEl(cinemaTitle, showtimeTime, cinemaID) {
+
+  showtimeTime = moment(showtimeTime).format('h:mma');
+
+  // create a container for showtime
+  var listEl = $('<div>');
+  listEl.addClass('notification is-primary my-3');
+  var listNavEl = $('<nav>');
+  listNavEl.addClass('level').appendTo(listEl);
+
+  var listFirstColEl = $('<div>');
+  listFirstColEl.addClass('level-left').appendTo(listNavEl);
+  var listFirstColItem = $('<div>');
+  listFirstColItem.addClass('level-item py-1').appendTo(listFirstColEl);
+  var listCinemaTitle = $('<p>');
+  listCinemaTitle.addClass('title is-4').text(cinemaTitle).appendTo(listFirstColItem);
+
+  var listSecColEl = $('<div>');
+  listSecColEl.addClass('level-center').appendTo(listNavEl);
+  var listSecColItem = $('<div>');
+  listSecColItem.addClass('level-item py-1').appendTo(listSecColEl);
+  var listCinemaTitle = $('<p>');
+  listCinemaTitle.addClass('title is-4').text(showtimeTime).appendTo(listSecColItem);
+
+  var listThirdColEl = $('<div>');
+  listThirdColEl.addClass('level-right').appendTo(listNavEl);
+  var listThirdColItem = $('<div>');
+  listThirdColItem.addClass('level-item py-1').appendTo(listThirdColEl);
+  var listCinemaTitle = $('<Button>');
+  listCinemaTitle
+  .addClass('button is-link')
+  .text('Can you make it?')
+  .attr('id', cinemaID)
+  .appendTo(listThirdColItem);
+
+  $('#' + cinemaID).on("click", function () {
+    getCinemaLocation(cinemaID, currentLoc, showtimeTime);
+  });
+
+  listEl.appendTo(showtimes);
+
+  // var titleFixed = showtimeInfo.split(' ').join('+');
+  // // https://www.google.com/maps/dir/40.4752752,-111.9263536/The+Depot/@40.6257634,-112.0496547,11
+  // var listShowtimeDirections = $('<a>')
+  //   .attr('href', 'https://www.google.com/maps/dir/' + from + '/' + titleFixed)
+  //   .attr('target', '_blank')
+  //   .addClass('button is-success mx-3')
+  //   .text('Get Directions');
+  // listShowtimeDirections.appendTo(listSecColBox);
+
+};
+
+function getCinemaLocation(cinemaID, currentLoc, startTime) {
+  // create todays date and format like in line 129
+  var cinema = {
+  "url": "https://api-gate2.movieglu.com/cinemaDetails/?cinema_id=" + cinemaID,
+  "method": "GET",
+  "timeout": 0,
+  "headers": {
+    "client": "PERS_101",
+    "x-api-key": "td2siOlX5g1hBiJBvMmef8Bn5OhuWPhP8oXcEvW7",
+    "authorization": "Basic UEVSU18xMDE6RDl6OUVCdjc1MGtz",
+    "territory": "US",
+    "api-version": "v200",
+  },
+};
+console.log(cinema)
+  $.ajax(cinema).done(function (response) {
+    
+    var cinemaLoc = response.lat + ',' + response.lng;
+    console.log('Cinema Location', cinemaLoc);
+    getMapData(currentLoc, cinemaLoc, startTime);
+    
+  })
+};
+
 // from and to can either be "lat,lon" or an adress
-function getMapData(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, eventURL, eventPhoto) {
+function getMapData(from, to, startTime) {
   axios.get('https://www.mapquestapi.com/directions/v2/route?key=diSZVTUqXE3YRm5IRyRe5IWmMHZWbypB&from=' + from + '&to=' + to + '')
     .then(function (res) {
       if (res.data.route.realTime > 0) {
         if (res.data.route.realTime < 10000000) {
-          var leaveByTime = moment(eventTime).subtract(res.data.route.realTime, 'seconds');
+          var leaveByTime = moment(startTime).subtract(res.data.route.realTime, 'seconds');
           // returns drivetime data in seconds based off of realtime traffic conditions
-          addListEl(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, leaveByTime, eventURL, eventPhoto);
+          if (moment(leaveByTime).isBefore()){
+            console.log('startTime', startTime);
+            console.log('leaveByTime', leaveByTime);
+            console.log('res.data.route.realTime', res.data.route.realTime);
+            modal('Can you make it?', 'No!', false, 'Choose another movie');
+          } else {
+            console.log('startTime', startTime);
+            console.log('leaveByTime', leaveByTime);
+            console.log('res.data.route.realTime', res.data.route.realTime);
+            modal('Can you make it?', 'Yes!', false, 'Click for directions to cimena');
+          }
         }
         else {
-          var leaveByTime = moment(eventTime).subtract(res.data.route.realTime, 'seconds');
+          var leaveByTime = moment(startTime).subtract(res.data.route.realTime, 'seconds');
           // if realtime data is unavailable, returns calculated drivetime time in seconds
-          addListEl(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, leaveByTime, eventURL, eventPhoto);
+          if (moment(leaveByTime).isBefore()){
+            console.log('startTime', startTime);
+            console.log('leaveByTime', leaveByTime);
+            console.log('res.data.route.realTime', res.data.route.realTime);
+            modal('Can you make it?', 'No!', false, 'Choose another movie');
+          } else {
+            console.log('startTime', startTime);
+            console.log('leaveByTime', leaveByTime);
+            console.log('res.data.route.realTime', res.data.route.realTime);
+            modal('Can you make it?', 'Yes!', false, 'Click for directions to cimena');
+          }
         }
       }
       else {
@@ -183,65 +271,6 @@ function getMapData(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, ev
     })
 }
 
-
-
-function addListEl(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, leaveByTime, eventURL, eventPhoto) {
-
-  eventTime = moment(eventTime).format('MMMM Do YYYY, h:mma');
-  leaveByTime = moment(leaveByTime).format('h:mma');
-
-  // create a container for event
-  var listEl = $('<div>');
-  listEl.addClass('notification is-primary');
-  var listColEl = $('<div>');
-  listColEl.addClass('columns').appendTo(listEl);
-  var listFirstColEl = $('<div>');
-  listFirstColEl.addClass('column is-narrow').appendTo(listColEl);
-  var listFirstColBox = $('<div>');
-  listFirstColBox.addClass('box').attr('style', 'width: 200px;').appendTo(listFirstColEl);
-  var listEventTitle = $('<p>');
-  listEventTitle.addClass('title is-4').text(eventTitle).appendTo(listFirstColBox);
-  var listEventTime = $('<p>');
-  listEventTime.addClass('title is-6 has-text-right').text(eventTime).appendTo(listFirstColBox);
-  var listEventDriveTime = $('<p>');
-  listEventDriveTime.addClass('title is-6 has-text-right').text('Leave by ' + leaveByTime).appendTo(listFirstColBox);
-
-  var listSecColEl = $('<div>');
-  listSecColEl.addClass('column').appendTo(listColEl);
-  var listSecColBox = $('<div>');
-  listSecColBox.addClass('box').appendTo(listSecColEl);
-  var listEventInfo = $('<p>');
-  listEventInfo.addClass('title is-5').text(eventInfo).appendTo(listSecColBox);
-  var listEventNote = $('<p>');
-  listEventNote.addClass('is-size-6').text(eventSubInfo).appendTo(listSecColBox);
-  var listEventNoteSpace = $('<br>');
-  listEventNoteSpace.addClass('is-size-6').appendTo(listSecColBox);
-
-  var listEventSubInfo = $('<a>')
-    .attr('href', eventURL)
-    .attr('target', '_blank')
-    .addClass('button is-success mx-3')
-    .text('Get Tickets');
-  listEventSubInfo.appendTo(listSecColBox);
-
-  var titleFixed = eventInfo.split(' ').join('+');
-  // https://www.google.com/maps/dir/40.4752752,-111.9263536/The+Depot/@40.6257634,-112.0496547,11
-  var listEventDirections = $('<a>')
-    .attr('href', 'https://www.google.com/maps/dir/' + from + '/' + titleFixed)
-    .attr('target', '_blank')
-    .addClass('button is-success mx-3')
-    .text('Get Directions');
-  listEventDirections.appendTo(listSecColBox);
-
-  var listEventPhotoFigure = $('<figure>');
-  listEventPhotoFigure.addClass('image is-16by9');
-  var listEventPhoto = $('<img>');
-  listEventPhoto.attr('src', eventPhoto);
-  listEventPhoto.appendTo(listEventPhotoFigure);
-  listEventPhotoFigure.appendTo(listSecColBox);
-
-  listEl.appendTo(events);
-};
 
 // modal use
 // for a simple message use a string for title and info 

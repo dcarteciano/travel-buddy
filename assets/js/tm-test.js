@@ -16,21 +16,21 @@
 //   console.log(response);
 //   });
 
-var filmShowtimes = {
-  "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=315323&date=2021-12-10&n=25",
-  "method": "GET",
-  "timeout": 0,
-  "headers": {
-    "geolocation": "40.4896;-111.9400",
-    "api-version": "v200",
-    "Authorization": "Basic VU5JVl81NTpMMzVtemRyenhUQ3Q=",
-    "client": "UNIV_54",
-    "x-api-key": "5SNa2JxuS81Ez99j1qXhA8bWvOiWsWjd14bJtU1T",
-    "device-datetime": "2021-12-10T21:09:48-07:00",
-    "territory": "US",
-    },
-  };
+// var filmShowtimes = {
+//   "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=315323&date=2021-12-10&n=25",
+//   "method": "GET",
+//   "timeout": 0,
+//   "headers": {
+//     "geolocation": "40.4896;-111.9400",
+//     "api-version": "v200",
+//     "Authorization": "Basic VU5JVl81NTpMMzVtemRyenhUQ3Q=",
+//     "client": "UNIV_54",
+//     "x-api-key": "5SNa2JxuS81Ez99j1qXhA8bWvOiWsWjd14bJtU1T",
+//     "device-datetime": "2021-12-10T21:09:48-07:00",
+//     "territory": "US",
+//     },
+//   };
   
-  $.ajax(filmShowtimes).done(function (response) {
-  console.log(response);
-  });
+//   $.ajax(filmShowtimes).done(function (response) {
+//   console.log(response);
+//   });

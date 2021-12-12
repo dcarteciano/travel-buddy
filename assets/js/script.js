@@ -12,17 +12,9 @@ function getFilms() {
     "method": "GET",
     "timeout": 0,
     "headers": {
-<<<<<<< HEAD
-      "api-version": "v200",
-      "Authorization": "Basic VU5JVl81NTpMMzVtemRyenhUQ3Q=",
-      "client": "UNIV_54",
-      "x-api-key": "5SNa2JxuS81Ez99j1qXhA8bWvOiWsWjd14bJtU1T",
-      "device-datetime": "2021-12-09T19:51:20+0000",
-=======
-      "client": "PERS_101",
-      "x-api-key": "5SNa2JxuS81Ez99j1qXhA8bWvOiWsWjd14bJtU1T",
-      "authorization": "Basic VU5JVl81NTpMMzVtemRyenhUQ3Q=",
->>>>>>> feature/showtimes
+      "client": "TEST_68",
+      "x-api-key": "vHoMPm9I9j9VRAKXO6Uhv8Fq7XYdWFtk7hPprM96",
+      "authorization": "Basic VEVTVF82ODppUDBuZ0IzUm5oc2o=",
       "territory": "US",
       "api-version": "v200",
       "geolocation": "40.4896;-111.9400",
@@ -91,6 +83,8 @@ function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer){
 
   $('#' + filmID + 'poster').on("click", function () {
     getCurrentPos(filmID);
+    getApi(filmID, currentLatitude, curentLongitude);
+
   });
 
   $('#' + filmID + 'info').on("click", function () {
@@ -120,65 +114,33 @@ function getCurrentPos(filmID) {
   }
 }
 
-<<<<<<< HEAD
-// filmGlu api to get showtimes for selected film nearby and long/lat
-function getApi(filmID, currentLatitude, currentLongitude) {
-  var filmShowtimes = {
-    "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=315323&date=2021-12-09&n=25",
-    "method": "GET",
-    "timeout": 0,
-    "headers": {
-      "geolocation": currentLatitude, currentLongitude,
-      "api-version": "v200",
-      "Authorization": "Basic VU5JVl81NTpMMzVtemRyenhUQ3Q=",
-      "client": "UNIV_54",
-      "x-api-key": "5SNa2JxuS81Ez99j1qXhA8bWvOiWsWjd14bJtU1T",
-      "device-datetime": "2021-12-09T19:51:20+0000",
-      "territory": "US",
-      },
-    };
-    console.log(filmShowtimes)
-
-  axios.get(filmShowtimes)
-    .then(function (res) {
-      var showtimeArray = cinemas;
-      console.log('showtimeArray', showtimeArray);
-      buildList(showtimeArray);
-    })
-    .catch(function (err) {
-      modal("Error", "Could not connect to ticketmaster.com");
-    });
-}
-=======
 //filmGlu api to get showtimes for selected film nearby and long/lat
 function getApi(filmID, currentLatitude, curentLongitude) {
   // create todays date and format like in line 129
+  var currentDate = new Date()
   var showtimes = {
-  "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=" + filmID + "&date=2021-12-10&n=15",
+  "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=" + filmID + "&date=2021-12-11&n=15",
   "method": "GET",
   "timeout": 0,
   "headers": {
-    "client": "PERS_101",
-    "x-api-key": "td2siOlX5g1hBiJBvMmef8Bn5OhuWPhP8oXcEvW7",
-    "authorization": "Basic UEVSU18xMDE6RDl6OUVCdjc1MGtz",
+    "client": "TEST_68",
+    "x-api-key": "vHoMPm9I9j9VRAKXO6Uhv8Fq7XYdWFtk7hPprM96",
+    "authorization": "Basic VEVTVF82ODppUDBuZ0IzUm5oc2o=",
     "territory": "US",
     "api-version": "v200",
-    "geolocation": currentLatitude + ";" + currentLongitude,
-    "device-datetime": "2021-12-10T15:43:20+0000", //moment().format()
+    "geolocation": currentLatitude + ";" + curentLongitude,
+    "device-datetime": moment(currentDate).format('MMMM Do YYYY, h:mma')
   },
 };
 console.log(showtimes)
   $.ajax(showtimes).done(function (response) {
     
-    var showtimeArray = response.cinemas
-    console.log('showtimes', showtimeArray);
-    buildList(showtimeArray)
-    
+    var startTime = response.cinemas[0].showings.Standard.times[0].start_time;
+    console.log('showtimes', startTime);    
   })
 };
   
-getApi();
->>>>>>> feature/showtimes
+
 
 function buildList(showtimeArray) {
   // takes the different objects of the event array and stores them to seperate variables

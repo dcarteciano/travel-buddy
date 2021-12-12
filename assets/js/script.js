@@ -185,10 +185,9 @@ function buildList(cinemasArray, currentLoc) {
 function addListEl(cinemaTitle, showtimes, cinemaID, currentLoc) {
 
   // create a container for showtime
-  var listEl = $('<div>');
-  listEl.addClass('container is-max-desktop').attr('id', 'showtimes');
+
   var listElNot = $('<div>');
-  listElNot.addClass('notification is-primary my-3').appendTo(listEl);
+  listElNot.addClass('notification is-primary my-3').appendTo(showtimesDiv);
   var listNavEl = $('<nav>');
   listNavEl.addClass('columns level').appendTo(listElNot);
 
@@ -222,14 +221,14 @@ function addListEl(cinemaTitle, showtimes, cinemaID, currentLoc) {
       .appendTo(listThirdColEl);
 
     $('#' + cinemaID + 'showtime' + i).on("click", function () {
-      showtime = moment(showtime, 'h:mm a').calendar().format();
+      // showtime = moment(showtime, 'h:mm a').calendar().format();
       console.log(showtime);
-      getCinemaLocation(cinemaID, currentLoc, showtime);
+      // getCinemaLocation(cinemaID, currentLoc, showtime);
     });
     
   }
   
-  listEl.appendTo(showtimesDiv);
+  // listEl.appendTo(showtimesDiv);
 
   // var titleFixed = showtimeInfo.split(' ').join('+');
   // // https://www.google.com/maps/dir/40.4752752,-111.9263536/The+Depot/@40.6257634,-112.0496547,11

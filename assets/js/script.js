@@ -18,8 +18,8 @@ function getFilms() {
       "authorization": "Basic VU5JVl81NTpMMzVtemRyenhUQ3Q=",
       "device-datetime": "2021-12-11T06:00:20+0000",
       "territory": "US",
-      },
-    };
+    },
+  };
   $.ajax(films).done(function (res) {
     var filmsArray = res.films;
     console.log('filmsArray', filmsArray);
@@ -42,7 +42,7 @@ function buildFilmsList(filmsArray) {
   }
 }
 
-function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer){
+function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer) {
 
   var filmColumns = $('<div>');
   filmColumns.addClass('column is-narrow');
@@ -74,7 +74,7 @@ function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer){
     .attr('target', '_blank')
     .addClass('button is-success mx-3')
     .text('Watch Trailer');
-    trailerButton.appendTo(cardContentDiv);
+  trailerButton.appendTo(cardContentDiv);
 
   cardDiv.appendTo(filmColumns);
   filmColumns.appendTo(movies);
@@ -84,9 +84,9 @@ function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer){
   });
 
   $('#' + filmID + 'info').on("click", function () {
-    modal(filmTitle, filmInfo, false, 'Close');
+    modal(filmTitle, filmInfo);
   });
-  
+
 }
 
 function getCurrentPos(filmID) {
@@ -124,9 +124,9 @@ function getApi(currentLatitude, currentLongitude) {
       "authorization": "Basic UEVSU18xMDE6RDl6OUVCdjc1MGtz",
       "device-datetime": "2021-12-11T6:00:20+0000",
       "territory": "US",
-      },
-    };
-    console.log(filmShowtimes)
+    },
+  };
+  console.log(filmShowtimes)
 
   axios.get(filmShowtimes)
     .then(function (res) {
@@ -239,46 +239,43 @@ function addListEl(from, to, eventTitle, eventTime, eventInfo, eventSubInfo, lea
   listEl.appendTo(events);
 };
 
-// modal use
-// for a simple message use a string for title and info 
-// for a form isForm needs to be true
-function modal(title, info, isForm, btnText) {
+// modal
+function modal(title, info, btnText) {
+  var modalContentEl = $("#modal-content");
+  var modalHeadEl = $("#modal-title");
+  var modalInfoEl = $("#modal-info");
 
-  var content = $(".modal-content");
-
-  // Style
   if (title === "Error") {
-    content.addClass("is-danger");
+    modalContentEl.addClass("is-danger");
   }
   else {
-    content.addClass("is-success");
+    modalContentEl.addClass("is-success");
   }
 
-  // Displays Form
-  if (isForm) {
-    var formEl = $("<form>").addClass("field is-success");
-    var labelEl = $("<label>").addClass("label message-header").text(title);
-    var infoEL = $("<p>").addClass("message-body").text(info);
-    var inputEl = $("<input>").addClass("input is-success").attr("id", "modal-input");
-    var btnEl = $("<button>").addClass("button is-success").attr("id", "modal-submit").text(btnText);
-    formEl.append(labelEl, infoEL, inputEl);
-    content.append(formEl, btnEl);
+  modalHeadEl.append($("<p>").text(title));
+  modalInfoEl.text(info);
 
-    btnEl.on("click", function (event) {
-      event.preventDefault();
-      modalInput = $("#modal-input").val().trim();
-      toggleModal();
+  if (btnText) {
+    var modalFootEl = $("<footer>").addClass("modal-card-foot")
+    var modalBtn = $("<button>").addClass("button is-success").attr("id", "modal-button").text(btnText);
+    modalFootEl.append(modalBtn);
+    modalContentEl.append(modalFootEl);
+    modalBtn.on("click", function() {
+      var btnVal = $(this).text();
+      modalButtonHandler(btnVal);
     });
   }
 
-  // Displays Message
-  else {
-    textEl = $("<p>");
-    titleEl = $("<strong>").addClass("message-header").text(title);
-    infoEl = $("<p>").addClass("message-body").text(info);
-    textEl.append(titleEl, infoEl);
-    content.append(textEl);
-  }
+  toggleModal();
+}
+
+function modalButtonHandler(text) {
+  console.log("Modal Button Text: ", text);
+  // example 
+
+  // if(text === "your modal button text") {
+  //   any code you want executed from button click
+  // }
 
   toggleModal();
 }
@@ -288,16 +285,19 @@ function toggleModal() {
   var display = $(".modal");
   if (display.hasClass("is-active")) {
     display.removeClass("is-active");
-    $(".modal-content").removeClass("is-success is-warning is-danger").empty();
+    $("#modal-content").removeClass("is-success is-warning is-danger");
+    $("#modal-title").empty();
+    $("#modal-info").empty();
+    $(".modal-card-foot").remove();
   }
   else {
     display.addClass("is-active");
   }
 }
 
-document.querySelector("#get-events").addEventListener("click", function () {
-  getFilms();
-});
+// document.querySelector("#get-events").addEventListener("click", function () {
+//   getFilms();
+// });
 
-$(".modal-close").on("click", toggleModal);
 $(".modal-background").on("click", toggleModal);
+$("#modal-close").on("click", toggleModal);

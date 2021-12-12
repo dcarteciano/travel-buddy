@@ -11,7 +11,7 @@
 //     "territory": "US",
 //     },
 //   };
-  
+
 //   $.ajax(filmsNowShowing).done(function (response) {
 //   console.log(response);
 //   });
@@ -30,7 +30,7 @@
 //     "territory": "US",
 //     },
 //   };
-  
+
 //   $.ajax(filmShowtimes).done(function (response) {
 //   console.log(response);
 //   });

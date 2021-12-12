@@ -25,9 +25,9 @@
   <!-- start button -->
   <div class="columns is-mobile">
     <div class="column is-mobile"></div>
-      <button id="get-events" class="button is-link">
-        <span>Show Movies</span>
-      </button>
+    <button id="get-events" class="button is-link">
+      <span>Show Movies</span>
+    </button>
     <div class="column is-mobile"></div>
   </div>
 
@@ -37,6 +37,9 @@
   </div>
 
   <!-- Showtimes -->
+  <!-- events -->
+  <div class="column" id="events">
+  </div>
 
   <div class="container is-max-desktop" id="showtimes">
 
@@ -92,14 +95,20 @@
   <!-- modal -->
   <div class="modal">
     <div class="modal-background"></div>
-    <div class="modal-content message is-success">    </div>
+    <div id="modal-content" class="modal-content message" >
+      <div class="message-header title is-4">
+        <p id="modal-title"></p>
+        <div id="modal-close" class="delete" aria-label="delete"></div>
+      </div>
+      <div id="modal-info" class="section message-body">This is a test</div>
+    </div>
   </div>
 
   <!-- scripts -->
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-  <script src="./assets/js/tm-test.js"></script>
+  <!-- <script src="./assets/js/tm-test.js"></script> -->
   <script src="./assets/js/script.js"></script>
 
 </body>

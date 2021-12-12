@@ -12,22 +12,19 @@ function getFilms() {
     "method": "GET",
     "timeout": 0,
     "headers": {
-      "client": "PERS_101",
-      "x-api-key": "5SNa2JxuS81Ez99j1qXhA8bWvOiWsWjd14bJtU1T",
-      "authorization": "Basic VU5JVl81NTpMMzVtemRyenhUQ3Q=",
+      "client": "TEST_68",
+      "x-api-key": "vHoMPm9I9j9VRAKXO6Uhv8Fq7XYdWFtk7hPprM96",
+      "authorization": "Basic VEVTVF82ODppUDBuZ0IzUm5oc2o=",
       "territory": "US",
-      "api-version": "v200",
-      "geolocation": "40.4896;-111.9400",
-      "device-datetime": "2021-12-10T15:43:20+0000",
     },
-    };
+  };
   $.ajax(films).done(function (res) {
     var filmsArray = res.films;
     console.log('filmsArray', filmsArray);
     buildFilmsList(filmsArray);
   });
 
-};
+}
 
 function buildFilmsList(filmsArray) {
   // takes the different objects of the event array and stores them to seperate variables
@@ -97,10 +94,12 @@ function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer, fil
 
   $('#' + filmID + 'poster').on("click", function () {
     getCurrentPos(filmID);
+    getApi(filmID, currentLatitude, curentLongitude);
+
   });
 
   $('#' + filmID + 'info').on("click", function () {
-    modal(filmTitle, filmInfo, false, 'Close');
+    modal(filmTitle, filmInfo);
   });
 
   $('#' + filmID + 'rating').on("click", function () {
@@ -133,29 +132,30 @@ function getCurrentPos(filmID) {
 //filmGlu api to get showtimes for selected film nearby and long/lat
 function getApi(filmID, currentLatitude, curentLongitude) {
   // create todays date and format like in line 129
+  var currentDate = new Date()
   var showtimes = {
-  "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=" + filmID + "&date=2021-12-10&n=15",
+  "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=" + filmID + "&date=2021-12-11&n=15",
   "method": "GET",
   "timeout": 0,
   "headers": {
-    "client": "PERS_101",
-    "x-api-key": "td2siOlX5g1hBiJBvMmef8Bn5OhuWPhP8oXcEvW7",
-    "authorization": "Basic UEVSU18xMDE6RDl6OUVCdjc1MGtz",
+    "client": "TEST_68",
+    "x-api-key": "vHoMPm9I9j9VRAKXO6Uhv8Fq7XYdWFtk7hPprM96",
+    "authorization": "Basic VEVTVF82ODppUDBuZ0IzUm5oc2o=",
     "territory": "US",
     "api-version": "v200",
-    "geolocation": currentLatitude + ";" + currentLongitude,
-    "device-datetime": "2021-12-10T15:43:20+0000", //moment().format()
+    "geolocation": currentLatitude + ";" + curentLongitude,
+    "device-datetime": moment(currentDate).format('MMMM Do YYYY, h:mma')
   },
 };
 console.log(showtimes)
   $.ajax(showtimes).done(function (response) {
     
-    var showtimeArray = response.cinemas
-    console.log('showtimes', showtimeArray);
-    buildList(showtimeArray)
-    
+    var startTime = response.cinemas[0].showings.Standard.times[0].start_time;
+    console.log('showtimes', startTime);    
   })
 };
+  
+
 
 function buildList(showtimeArray) {
   // takes the different objects of the event array and stores them to seperate variables
@@ -314,41 +314,37 @@ function getMapData(from, to, startTime) {
 // for a form isForm needs to be true
 function modal(title, info, isForm, btnText) {
 
-  var content = $(".modal-content");
-
-  // Style
   if (title === "Error") {
-    content.addClass("is-danger");
+    modalContentEl.addClass("is-danger");
   }
   else {
-    content.addClass("is-success");
+    modalContentEl.addClass("is-success");
   }
 
-  // Displays Form
-  if (isForm) {
-    var formEl = $("<form>").addClass("field is-success");
-    var labelEl = $("<label>").addClass("label message-header").text(title);
-    var infoEL = $("<p>").addClass("message-body").text(info);
-    var inputEl = $("<input>").addClass("input is-success").attr("id", "modal-input");
-    var btnEl = $("<button>").addClass("button is-success").attr("id", "modal-submit").text(btnText);
-    formEl.append(labelEl, infoEL, inputEl);
-    content.append(formEl, btnEl);
+  modalHeadEl.append($("<p>").text(title));
+  modalInfoEl.text(info);
 
-    btnEl.on("click", function (event) {
-      event.preventDefault();
-      modalInput = $("#modal-input").val().trim();
-      toggleModal();
+  if (btnText) {
+    var modalFootEl = $("<footer>").addClass("modal-card-foot")
+    var modalBtn = $("<button>").addClass("button is-success").attr("id", "modal-button").text(btnText);
+    modalFootEl.append(modalBtn);
+    modalContentEl.append(modalFootEl);
+    modalBtn.on("click", function() {
+      var btnVal = $(this).text();
+      modalButtonHandler(btnVal);
     });
   }
 
-  // Displays Message
-  else {
-    textEl = $("<p>");
-    titleEl = $("<strong>").addClass("message-header").text(title);
-    infoEl = $("<p>").addClass("message-body").text(info);
-    textEl.append(titleEl, infoEl);
-    content.append(textEl);
-  }
+  toggleModal();
+}
+
+function modalButtonHandler(text) {
+  console.log("Modal Button Text: ", text);
+  // example 
+
+  // if(text === "your modal button text") {
+  //   any code you want executed from button click
+  // }
 
   toggleModal();
 }
@@ -358,18 +354,19 @@ function toggleModal() {
   var display = $(".modal");
   if (display.hasClass("is-active")) {
     display.removeClass("is-active");
-    $(".modal-content").removeClass("is-success is-warning is-danger").empty();
+    $("#modal-content").removeClass("is-success is-warning is-danger");
+    $("#modal-title").empty();
+    $("#modal-info").empty();
+    $(".modal-card-foot").remove();
   }
   else {
     display.addClass("is-active");
   }
 }
 
+// document.querySelector("#get-events").addEventListener("click", function () {
+//   getFilms();
+// });
 
-
-document.querySelector("#get-events").addEventListener("click", function () {
-  getFilms();
-});
-
-$(".modal-close").on("click", toggleModal);
 $(".modal-background").on("click", toggleModal);
+$("#modal-close").on("click", toggleModal);

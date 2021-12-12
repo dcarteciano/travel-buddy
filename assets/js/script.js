@@ -13,9 +13,9 @@ function getFilms() {
     "timeout": 0,
     "headers": {
       "api-version": "v200",
-      "Authorization": "Basic VU5JVl81NDpnYUhaR0NxNm1MU2o=",
-      "client": "UNIV_54",
-      "x-api-key": "KJxQ3LIeJi9v1XVAKbzcc5R0tCYpdsID6aAGkv1R",
+      "client": "PERS_101",
+      "x-api-key": "5SNa2JxuS81Ez99j1qXhA8bWvOiWsWjd14bJtU1T",
+      "authorization": "Basic VU5JVl81NTpMMzVtemRyenhUQ3Q=",
       "device-datetime": "2021-12-11T06:00:20+0000",
       "territory": "US",
       },
@@ -119,9 +119,9 @@ function getApi(currentLatitude, currentLongitude) {
     "headers": {
       "geolocation": currentLatitude, currentLongitude,
       "api-version": "v200",
-      "Authorization": "Basic VU5JVl81NDpnYUhaR0NxNm1MU2o=",
-      "client": "UNIV_54",
-      "x-api-key": "KJxQ3LIeJi9v1XVAKbzcc5R0tCYpdsID6aAGkv1R",
+      "client": "PERS_101",
+      "x-api-key": "td2siOlX5g1hBiJBvMmef8Bn5OhuWPhP8oXcEvW7",
+      "authorization": "Basic UEVSU18xMDE6RDl6OUVCdjc1MGtz",
       "device-datetime": "2021-12-11T6:00:20+0000",
       "territory": "US",
       },
@@ -294,8 +294,6 @@ function toggleModal() {
     display.addClass("is-active");
   }
 }
-
-
 
 document.querySelector("#get-events").addEventListener("click", function () {
   getFilms();

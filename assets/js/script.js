@@ -38,15 +38,19 @@ function buildFilmsList(filmsArray) {
     var filmPoster = filmsArray[i].images.poster[1].medium.film_image;
     var filmTrailer = filmsArray[i].film_trailer;
     var filmIMDB = filmsArray[i].imdb_id;
+    var filmRating = filmsArray[i].age_rating[0].rating;
     var filmRatingImage = filmsArray[i].age_rating[0].age_rating_image;
-    addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer)
+    var filmRatingAdvisory = filmsArray[i].age_rating[0].age_advisory;
+    addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer, filmRating, filmRatingImage, filmRatingAdvisory)
   }
 }
 
-function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer){
+function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer, filmRating, filmRatingImage, filmRatingAdvisory){
 
   var filmColumns = $('<div>');
-  filmColumns.addClass('column is-narrow');
+  filmColumns.addClass('columns is-mobile is-multiline is-centered');
+  var filmColumn = $('<div>');
+  filmColumn.addClass('column is-narrow');
   var cardDiv = $('<div>');
   cardDiv.addClass('card').attr('style', 'width: 200px');
   var cardImageDiv = $('<div>');
@@ -61,7 +65,7 @@ function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer){
   var cardContentDiv = $('<div>');
   cardContentDiv.addClass('card-content').appendTo(cardDiv);
   var cardTitle = $('<p>');
-  cardTitle.addClass('content')
+  cardTitle.addClass('content is-size-5 has-text-centered')
     .text(filmTitle)
     .appendTo(cardContentDiv);
   var cardIconSpan = $('<span>');
@@ -69,16 +73,26 @@ function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer){
   var cardIcon = $('<i>');
   cardIcon.addClass('fas fa-info-circle')
     .attr('id', filmID + 'info')
+    .attr('aria-hidden', 'true')
     .appendTo(cardIconSpan);
+  var ratingFigure = $('<figure>');
+  ratingFigure.addClass('image').appendTo(cardContentDiv);
+  var ratingImage = $('<img>')
+    .attr('src', filmRatingImage)
+    .attr('alt', filmRating + 'Rating')
+    .attr('id', filmID + 'rating')
+    .attr('style', 'width: auto; height: 25px')
+    .addClass('mx-auto mb-3');
+  ratingImage.appendTo(cardContentDiv);
   var trailerButton = $('<a>')
     .attr('href', filmTrailer)
     .attr('target', '_blank')
     .addClass('button is-success mx-3')
     .text('Watch Trailer');
-    trailerButton.appendTo(cardContentDiv);
-
+  trailerButton.appendTo(cardContentDiv);
 
   cardDiv.appendTo(filmColumns);
+  filmColumn.appendTo(filmColumns);
   filmColumns.appendTo(movies);
 
   $('#' + filmID + 'poster').on("click", function () {
@@ -87,6 +101,10 @@ function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer){
 
   $('#' + filmID + 'info').on("click", function () {
     modal(filmTitle, filmInfo, false, 'Close');
+  });
+
+  $('#' + filmID + 'rating').on("click", function () {
+    modal('Rated ' + filmRating, filmRatingAdvisory, false, 'Close');
   });
   
 }
@@ -143,50 +161,57 @@ function buildList(showtimeArray) {
   // takes the different objects of the event array and stores them to seperate variables
   for (var i = 0; i < showtimeArray.length; i++) {
     var cinemaTitle = showtimeArray[i].cinema_name;
-    var showtimeTime = showtimeArray[i].showings.Standard.times[0].start_time;
+    var showtimeTimes = showtimeArray[i].showings.Standard.times;
     var cinemaID = showtimeArray[i].cinema_id;
-    addListEl(cinemaTitle, showtimeTime, cinemaID);
+    addListEl(cinemaTitle, showtimeTimes, cinemaID);
   }
 }
 
-function addListEl(cinemaTitle, showtimeTime, cinemaID) {
+function addListEl(cinemaTitle, showtimeTimes, cinemaID) {
 
-  showtimeTime = moment(showtimeTime).format('h:mma');
+  
 
   // create a container for showtime
   var listEl = $('<div>');
-  listEl.addClass('notification is-primary my-3');
+  listEl.addClass('container is-max-desktop').attr('id', 'showtimes');
+  var listElNot = $('<div>');
+  listElNot.addClass('notification is-primary my-3').appendTo(listEl);
   var listNavEl = $('<nav>');
-  listNavEl.addClass('level').appendTo(listEl);
+  listNavEl.addClass('columns level').appendTo(listElNot);
 
   var listFirstColEl = $('<div>');
-  listFirstColEl.addClass('level-left').appendTo(listNavEl);
+  listFirstColEl.addClass('column is-one-third level-left').appendTo(listNavEl);
   var listFirstColItem = $('<div>');
   listFirstColItem.addClass('level-item py-1').appendTo(listFirstColEl);
   var listCinemaTitle = $('<p>');
-  listCinemaTitle.addClass('title is-4').text(cinemaTitle).appendTo(listFirstColItem);
+  listCinemaTitle.addClass('is-size-4').text(cinemaTitle).appendTo(listFirstColItem);
 
   var listSecColEl = $('<div>');
-  listSecColEl.addClass('level-center').appendTo(listNavEl);
+  listSecColEl.addClass('column is-one-third level-center').appendTo(listNavEl);
   var listSecColItem = $('<div>');
   listSecColItem.addClass('level-item py-1').appendTo(listSecColEl);
   var listCinemaTitle = $('<p>');
-  listCinemaTitle.addClass('title is-4').text(showtimeTime).appendTo(listSecColItem);
+  listCinemaTitle.addClass('is-size-5').text('Showtimes:').appendTo(listSecColItem);
 
   var listThirdColEl = $('<div>');
-  listThirdColEl.addClass('level-right').appendTo(listNavEl);
-  var listThirdColItem = $('<div>');
-  listThirdColItem.addClass('level-item py-1').appendTo(listThirdColEl);
-  var listCinemaTitle = $('<Button>');
-  listCinemaTitle
-  .addClass('button is-link')
-  .text('Can you make it?')
-  .attr('id', cinemaID)
-  .appendTo(listThirdColItem);
+  listThirdColEl.addClass('column is-one-third level-right is-flex-wrap-wrap').appendTo(listNavEl);
 
-  $('#' + cinemaID).on("click", function () {
-    getCinemaLocation(cinemaID, currentLoc, showtimeTime);
-  });
+  for (var i = 0; i < showtimeTimes.length; i++) {
+    var showtimeTime = showtimeTimes[i].start_time;
+    showtimeTime = moment(showtimeTime).format('h:mma');
+    var listShowtime = $('<button>');
+    listShowtime
+      .addClass('button is-link m-1 p-2')
+      .text(showtimeTime)
+      .attr('id', cinemaID + 'showtime' + '#' + i)
+      .appendTo(listThirdColItem);
+
+    $('#' + cinemaID + 'showtime' + '#' + i).on("click", function () {
+      getCinemaLocation(cinemaID, currentLoc, showtimeTime);
+    });
+    
+  }
+  
 
   listEl.appendTo(showtimes);
 
@@ -232,32 +257,44 @@ function getMapData(from, to, startTime) {
       if (res.data.route.realTime > 0) {
         if (res.data.route.realTime < 10000000) {
           var leaveByTime = moment(startTime).subtract(res.data.route.realTime, 'seconds');
-          // returns drivetime data in seconds based off of realtime traffic conditions
+          // if realtime data is unavailable, returns calculated drivetime time in seconds
           if (moment(leaveByTime).isBefore()){
+            var difference = moment.duration(moment().diff(leaveByTime));
+            var minutesLate = difference.asMinutes();
             console.log('startTime', startTime);
             console.log('leaveByTime', leaveByTime);
+            console.log('minutesLate', minutesLate);
             console.log('res.data.route.realTime', res.data.route.realTime);
-            modal('Can you make it?', 'No!', false, 'Choose another movie');
+            modal('Can you make it?', 'No, you would be ' + minutesLate + 'late to the movie.', false, 'Choose another movie');
           } else {
+            var difference = moment.duration(leaveByTime.diff(moment()));
+            var minutesEarly = difference.asMinutes();
             console.log('startTime', startTime);
             console.log('leaveByTime', leaveByTime);
+            console.log('minutesEarly', minutesEarly);
             console.log('res.data.route.realTime', res.data.route.realTime);
-            modal('Can you make it?', 'Yes!', false, 'Click for directions to cimena');
+            modal('Can you make it?', 'Yes, you will be ' + minutesEarly + 'early to the movie.', false, 'Directions to cimena');
           }
         }
         else {
           var leaveByTime = moment(startTime).subtract(res.data.route.realTime, 'seconds');
           // if realtime data is unavailable, returns calculated drivetime time in seconds
           if (moment(leaveByTime).isBefore()){
+            var difference = moment.duration(moment().diff(leaveByTime));
+            var minutesLate = difference.asMinutes();
             console.log('startTime', startTime);
             console.log('leaveByTime', leaveByTime);
+            console.log('minutesLate', minutesLate);
             console.log('res.data.route.realTime', res.data.route.realTime);
-            modal('Can you make it?', 'No!', false, 'Choose another movie');
+            modal('Can you make it?', 'No, you would be ' + minutesLate + 'late to the movie.', false, 'Choose another movie');
           } else {
+            var difference = moment.duration(leaveByTime.diff(moment()));
+            var minutesEarly = difference.asMinutes();
             console.log('startTime', startTime);
             console.log('leaveByTime', leaveByTime);
+            console.log('minutesEarly', minutesEarly);
             console.log('res.data.route.realTime', res.data.route.realTime);
-            modal('Can you make it?', 'Yes!', false, 'Click for directions to cimena');
+            modal('Can you make it?', 'Yes, you will be ' + minutesEarly + 'early to the movie.', false, 'Directions to cimena');
           }
         }
       }

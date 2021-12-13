@@ -230,15 +230,9 @@ function addListEl(cinemaTitle, showtimes, cinemaID, currentLoc) {
       .appendTo(listThirdColEl);
 
     $('#' + cinemaID + 'showtime' + i).on("click", function () {
-<<<<<<< HEAD
      showtime = moment(showtime, 'h:mm a').calendar().format();
       console.log(showtime);
      getCinemaLocation(cinemaID, currentLoc, showtime);
-=======
-      // showtime = moment(showtime, 'h:mm a').calendar().format();
-      console.log(showtime);
-      // getCinemaLocation(cinemaID, currentLoc, showtime);
->>>>>>> 341e493ea534263820570f60d13c621c98c2cc5d
     });
 
   }

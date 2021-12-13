@@ -36,21 +36,24 @@ function getFilms() {
       "device-datetime": currentDateUTC
     },
   };
-  $.ajax(films).done(function (res) {
-    var filmsArray = res.films;
-    console.log('filmsArray', filmsArray);
-    buildFilmsList(filmsArray);
-    storeFilmsArray(filmsArray);
-  });
+  $.ajax(films)
+    .done(function (res) {
+      var filmsArray = res.films;
+      console.log('filmsArray', filmsArray);
+      buildFilmsList(filmsArray);
+      storeFilmsArray(filmsArray);
+    })
+    .fail(function () {
+      modal("Error", "We had trouble retrieving data from movieglu.com");
+    })
+};
 
-}
 // function that stores the filmsArray into localstorage
 function storeFilmsArray(filmsArray) {
   filmsDate = moment();
   localStorage.setItem('filmsArray', JSON.stringify(filmsArray));
   localStorage.setItem('filmsDate', JSON.stringify(filmsDate));
 }
-
 
 function buildFilmsList(filmsArray) {
   // takes the different objects of the event array and stores them to seperate variables
@@ -176,11 +179,15 @@ function getApi(filmID, currentLoc) {
       "device-datetime": currentDateUTC
     },
   };
-  $.ajax(cinemas).done(function (response) {
-    var cinemasArray = response.cinemas;
-    console.log('cinemasArray', cinemasArray);
-    buildList(cinemasArray, currentLoc);
-  })
+  $.ajax(cinemas)
+    .done(function (response) {
+      var cinemasArray = response.cinemas;
+      console.log('cinemasArray', cinemasArray);
+      buildList(cinemasArray, currentLoc);
+    })
+    .fail(function () {
+      modal("Error", "We had trouble retrieving data from movieglu.com");
+    })
 };
 
 function buildList(cinemasArray, currentLoc) {
@@ -268,13 +275,17 @@ function getCinemaLocation(cinemaID, currentLoc, showtime) {
     },
   };
   console.log(cinema)
-  $.ajax(cinema).done(function (response) {
+  $.ajax(cinema)
+    .done(function (response) {
 
-    var cinemaLoc = response.lat + ',' + response.lng;
-    console.log('Cinema Location', cinemaLoc);
-    getMapData(currentLoc, cinemaLoc, showtime);
+      var cinemaLoc = response.lat + ',' + response.lng;
+      console.log('Cinema Location', cinemaLoc);
+      getMapData(currentLoc, cinemaLoc, showtime);
 
-  })
+    })
+    .fail(function () {
+      modal("Error", "We had trouble retrieving data from movieglu.com");
+    });
 };
 
 // from and to can either be "lat,lon" or an adress

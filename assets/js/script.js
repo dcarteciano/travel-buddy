@@ -396,7 +396,6 @@ function toggleModal() {
   }
 }
 
-<<<<<<< HEAD
 document.querySelector("#get-events").addEventListener("click", function (filmsArray, currentDateUTC, currentDate) {
   // When the show movies button is pressed the getFilms() function is called
   getFilms();
@@ -409,19 +408,20 @@ document.querySelector("#get-events").addEventListener("click", function (filmsA
   // if empty or nothing in storage, run getFilms
   getFilms();
   } 
+  // if there is an object in localstorage compare the dates
   else{
+  // declaration of the dates and puts it into a format to compare the day numbers
     currentDateUTC = moment().format();
     currentDate = moment().format('YYYY-MM-DD');
     var d = new Date(currentDateUTC)
     var c = new Date(currentDate);
-  // compare the system time with the current time, if the days are the same then returns films array
+  // if the days are the same then returns films array
     if(d.getDate() === c.getDate()){
       return filmsArray;
   // if days are not the same then run getfilms function
     } else {
       getFilms();
     }
-=======
 var filmsLoaded = false;
 document.querySelector("#get-films").addEventListener("click", function () {
   moviesEl = $("#movies");
@@ -433,7 +433,6 @@ document.querySelector("#get-films").addEventListener("click", function () {
   else {
     filmsLoaded = true;
     getFilms();
->>>>>>> 341e493ea534263820570f60d13c621c98c2cc5d
   }
 });
 

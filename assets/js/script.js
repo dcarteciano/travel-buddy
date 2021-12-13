@@ -21,6 +21,7 @@ var taylorAuth = "";
 var currentDateUTC = moment().format();
 var currentDate = moment().format('YYYY-MM-DD');
 
+
 function getFilms() {
   var films = {
     "url": "https://api-gate2.movieglu.com/filmsNowShowing/?n=15",
@@ -39,9 +40,15 @@ function getFilms() {
     var filmsArray = res.films;
     console.log('filmsArray', filmsArray);
     buildFilmsList(filmsArray);
+    storeFilmsArray(filmsArray);
   });
 
 }
+// function that stores the filmsArray into localstorage
+function storeFilmsArray(filmsArray) {
+  localStorage.setItem('filmsArray', JSON.stringify(filmsArray));
+}
+
 
 function buildFilmsList(filmsArray) {
   // takes the different objects of the event array and stores them to seperate variables
@@ -222,9 +229,9 @@ function addListEl(cinemaTitle, showtimes, cinemaID, currentLoc) {
       .appendTo(listThirdColEl);
 
     $('#' + cinemaID + 'showtime' + i).on("click", function () {
-      showtime = moment(showtime, 'h:mm a').calendar().format();
+     showtime = moment(showtime, 'h:mm a').calendar().format();
       console.log(showtime);
-      getCinemaLocation(cinemaID, currentLoc, showtime);
+     getCinemaLocation(cinemaID, currentLoc, showtime);
     });
     
   }
@@ -381,8 +388,31 @@ function toggleModal() {
   }
 }
 
-document.querySelector("#get-events").addEventListener("click", function () {
+document.querySelector("#get-events").addEventListener("click", function (filmsArray, currentDateUTC, currentDate) {
+  // When the show movies button is pressed the getFilms() function is called
   getFilms();
+  // pulls the filmsArray from local storage and stores it into filmsArray varaible
+  filmsArray = localStorage.getItem('filmsArray')
+  // parsese the string back into an Array
+  filmsArray = JSON.parse(filmsArray)
+  // checks to see if there is something inside the filmsArray object in local storage
+  if(localStorage.getItem("filmsArray") === null) {
+  // if empty or nothing in storage, run getFilms
+  getFilms();
+  } 
+  else{
+    currentDateUTC = moment().format();
+    currentDate = moment().format('YYYY-MM-DD');
+    var d = new Date(currentDateUTC)
+    var c = new Date(currentDate);
+  // compare the system time with the current time, if the days are the same then returns films array
+    if(d.getDate() === c.getDate()){
+      return filmsArray;
+  // if days are not the same then run getfilms function
+    } else {
+      getFilms();
+    }
+  }
 });
 
 $(".modal-background").on("click", toggleModal);

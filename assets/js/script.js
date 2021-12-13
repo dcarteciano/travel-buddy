@@ -369,16 +369,16 @@ function modalButtonHandler(text) {
   console.log("Modal Button Text: ", text);
   // example 
 
-  if(text === "your modal button text") {
-    // any code you want executed from button click
-  var titleFixed = showtimeInfo.split(' ').join('+');
-  // https://www.google.com/maps/dir/40.4752752,-111.9263536/The+Depot/@40.6257634,-112.0496547,11
-  var listShowtimeDirections = $('<a>')
-    .attr('href', 'https://www.google.com/maps/dir/' + from + '/' + titleFixed)
-    .attr('target', '_blank')
-    .addClass('button is-success mx-3')
-    .text('Get Directions');
-  listShowtimeDirections.appendTo(listSecColBox);
+  // if(text === "your modal button text") {
+  //   // any code you want executed from button click
+  // var titleFixed = showtimeInfo.split(' ').join('+');
+  // // https://www.google.com/maps/dir/40.4752752,-111.9263536/The+Depot/@40.6257634,-112.0496547,11
+  // var listShowtimeDirections = $('<a>')
+  //   .attr('href', 'https://www.google.com/maps/dir/' + from + '/' + titleFixed)
+  //   .attr('target', '_blank')
+  //   .addClass('button is-success mx-3')
+  //   .text('Get Directions');
+  // listShowtimeDirections.appendTo(listSecColBox);
   }
 
   toggleModal();

@@ -230,9 +230,9 @@ function addListEl(cinemaTitle, showtimes, cinemaID, currentLoc) {
       .appendTo(listThirdColEl);
 
     $('#' + cinemaID + 'showtime' + i).on("click", function () {
-     showtime = moment(showtime, 'h:mm a').calendar().format();
+      showtime = moment(showtime, 'h:mm a').calendar().format();
       console.log(showtime);
-     getCinemaLocation(cinemaID, currentLoc, showtime);
+      getCinemaLocation(cinemaID, currentLoc, showtime);
     });
 
   }
@@ -390,32 +390,36 @@ function toggleModal() {
   }
 }
 
-document.querySelector("#get-events").addEventListener("click", function (filmsArray, currentDateUTC, currentDate) {
-  // When the show movies button is pressed the getFilms() function is called
-  getFilms();
-  // pulls the filmsArray from local storage and stores it into filmsArray varaible
-  filmsArray = localStorage.getItem('filmsArray')
-  // parsese the string back into an Array
-  filmsArray = JSON.parse(filmsArray)
-  // checks to see if there is something inside the filmsArray object in local storage
-  if(localStorage.getItem("filmsArray") === null) {
-  // if empty or nothing in storage, run getFilms
-  getFilms();
-  } 
-  // if there is an object in localstorage compare the dates
-  else{
-  // declaration of the dates and puts it into a format to compare the day numbers
-    currentDateUTC = moment().format();
-    currentDate = moment().format('YYYY-MM-DD');
-    var d = new Date(currentDateUTC)
-    var c = new Date(currentDate);
-  // if the days are the same then returns films array
-    if(d.getDate() === c.getDate()){
-      return filmsArray;
-  // if days are not the same then run getfilms function
-    } else {
-      getFilms();
-    }
+// document.querySelector("#get-events").addEventListener("click", function (filmsArray, currentDateUTC, currentDate) {
+//   // When the show movies button is pressed the getFilms() function is called
+//   getFilms();
+//   // pulls the filmsArray from local storage and stores it into filmsArray varaible
+//   filmsArray = localStorage.getItem('filmsArray')
+//   // parsese the string back into an Array
+//   filmsArray = JSON.parse(filmsArray)
+//   // checks to see if there is something inside the filmsArray object in local storage
+//   if (localStorage.getItem("filmsArray") === null) {
+//     // if empty or nothing in storage, run getFilms
+//     getFilms();
+//   }
+//   // if there is an object in localstorage compare the dates
+//   else {
+//     // declaration of the dates and puts it into a format to compare the day numbers
+//     currentDateUTC = moment().format();
+//     currentDate = moment().format('YYYY-MM-DD');
+//     var d = new Date(currentDateUTC)
+//     var c = new Date(currentDate);
+//     // if the days are the same then returns films array
+//     if (d.getDate() === c.getDate()) {
+//       return filmsArray;
+//       // if days are not the same then run getfilms function
+//     } else {
+//       getFilms();
+//     }
+//   }
+// });
+
+
 var filmsLoaded = false;
 document.querySelector("#get-films").addEventListener("click", function () {
   moviesEl = $("#movies");

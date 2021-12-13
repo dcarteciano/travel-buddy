@@ -34,3 +34,16 @@
 //   $.ajax(filmShowtimes).done(function (response) {
 //   console.log(response);
 //   });
+
+// axios.get('https://www.mapquestapi.com/directions/v2/route?key=EQrA7i7TLmnP9B1ZFC6CRQgsZVFl6XGz&from=' + from + '&to=' + to)
+//     .then(function (res) {
+
+//     };
+
+var directions = {
+  "url": "https://api.mapbox.com/directions/v5/mapbox/driving/-111.886902%2C40.426491%3B-111.926331%2C40.4752595?alternatives=true&geometries=geojson&language=en&overview=simplified&steps=true&access_token=pk.eyJ1Ijoiam9obmRhdmlzOTI3OTAiLCJhIjoiY2t4NDZlNWJ5MjVoYjJucW9kcm5jdGQxZyJ9.1CTxHYCYILbYZTJvrvtwqw"
+  };
+
+$.ajax(directions).done(function (res) {
+  console.log(res);
+});

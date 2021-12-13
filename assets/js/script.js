@@ -29,9 +29,9 @@ function getFilms() {
     "timeout": 0,
     "headers": {
       "api-version": "v200",
-      "client": johnClient,
-      "x-api-key": johnApiKey,
-      "authorization": johnAuth,
+      "client": taylorClient,
+      "x-api-key": taylorApiKey,
+      "authorization": taylorAuth,
       "territory": "US",
       "device-datetime": currentDateUTC
     },
@@ -164,9 +164,9 @@ function getApi(filmID, currentLoc) {
     "method": "GET",
     "timeout": 0,
     "headers": {
-      "client": johnClient,
-      "x-api-key": johnApiKey,
-      "authorization": johnAuth,
+      "client": taylorClient,
+      "x-api-key": taylorApiKey,
+      "authorization": taylorAuth,
       "territory": "US",
       "api-version": "v200",
       "geolocation": currentLoc,
@@ -176,7 +176,7 @@ function getApi(filmID, currentLoc) {
   $.ajax(cinemas).done(function (response) {
     var cinemasArray = response.cinemas;
     console.log('cinemasArray', cinemasArray);
-    buildList(cinemasArray, currentLoc);
+    buildList(cinemasArray);
   })
 };
 
@@ -186,11 +186,11 @@ function buildList(cinemasArray, currentLoc) {
     var cinemaTitle = cinemasArray[i].cinema_name;
     var showtimes = cinemasArray[i].showings.Standard.times;
     var cinemaID = cinemasArray[i].cinema_id;
-    addListEl(cinemaTitle, showtimes, cinemaID, currentLoc);
+    addListEl(cinemaTitle, showtimes, cinemaID);
   }
 }
 
-function addListEl(cinemaTitle, showtimes, cinemaID, currentLoc) {
+function addListEl(cinemaTitle, showtimes, cinemaID) {
 
   // create a container for showtime
 
@@ -220,20 +220,19 @@ function addListEl(cinemaTitle, showtimes, cinemaID, currentLoc) {
 
   for (var i = 0; i < showtimes.length; i++) {
     var showtime = showtimes[i].start_time;
-    showtime = moment(showtime, 'HH:mm').format('h:mm a');
+    showtimeText = moment(showtime, 'HH:mm').format('h:mm a');
     var showtimeButton = $('<button>');
     showtimeButton
       .addClass('button is-link m-1 p-2')
-      .text(showtime)
+      .text(showtimeText)
       .attr('id', cinemaID + 'showtime' + i)
       .appendTo(listThirdColEl);
 
     $('#' + cinemaID + 'showtime' + i).on("click", function () {
-
-      // showtime = moment(showtime, 'h:mm a').calendar().format();
-      console.log(showtime);
-      // getCinemaLocation(cinemaID, currentLoc, showtime);
-
+      var showtimeDay = moment().format('YYYY-MM-DD');
+      showtime = showtimeDay + 'T' + showtime + ':00-00:00';
+      console.log('showtime', showtime);
+      getCinemaLocation(cinemaID, showtime);
     });
 
   }
@@ -251,87 +250,61 @@ function addListEl(cinemaTitle, showtimes, cinemaID, currentLoc) {
 
 };
 
-function getCinemaLocation(cinemaID, currentLoc, showtime) {
-  showtime = moment(showtime).calendar().format();
+function getCinemaLocation(cinemaID, showtime) {
   // create todays date and format like in line 129
   var cinema = {
     "url": "https://api-gate2.movieglu.com/cinemaDetails/?cinema_id=" + cinemaID,
     "method": "GET",
     "timeout": 0,
     "headers": {
-      "client": johnClient,
-      "x-api-key": johnApiKey,
-      "authorization": johnAuth,
+      "client": taylorClient,
+      "x-api-key": taylorApiKey,
+      "authorization": taylorAuth,
       "territory": "US",
       "api-version": "v200",
+      "device-datetime": currentDateUTC
     },
   };
-  console.log(cinema)
   $.ajax(cinema).done(function (response) {
-
-    var cinemaLoc = response.lat + ',' + response.lng;
+    var currentLocCinema = curentLongitude + '%2C' + currentLatitude;
+    var cinemaLoc = response.lng + '%2C' + response.lat;
     console.log('Cinema Location', cinemaLoc);
-    getMapData(currentLoc, cinemaLoc, showtime);
+    getMapData(currentLocCinema, cinemaLoc, showtime);
 
   })
 };
 
 // from and to can either be "lat,lon" or an adress
 function getMapData(from, to, showtime) {
-  axios.get('https://www.mapquestapi.com/directions/v2/route?key=diSZVTUqXE3YRm5IRyRe5IWmMHZWbypB&from=' + from + '&to=' + to + '')
-    .then(function (res) {
-      if (res.data.route.realTime > 0) {
-        if (res.data.route.realTime < 10000000) {
-          var leaveByTime = moment(showtime).subtract(res.data.route.realTime, 'seconds');
-          // if realtime data is unavailable, returns calculated drivetime time in seconds
-          if (moment(leaveByTime).isBefore()) {
-            var difference = moment().duration(moment().diff(leaveByTime));
-            var minutesLate = difference.asMinutes();
-            console.log('showtime', showtime);
-            console.log('leaveByTime', leaveByTime);
-            console.log('minutesLate', minutesLate);
-            console.log('res.data.route.realTime', res.data.route.realTime);
-            modal('Can you make it?', 'No, you would be ' + minutesLate + 'late to the movie.', false, 'Choose another movie');
-          } else {
-            var difference = moment().duration(leaveByTime.diff(moment()));
-            var minutesEarly = difference.asMinutes();
-            console.log('showtime', showtime);
-            console.log('leaveByTime', leaveByTime);
-            console.log('minutesEarly', minutesEarly);
-            console.log('res.data.route.realTime', res.data.route.realTime);
-            modal('Can you make it?', 'Yes, you will be ' + minutesEarly + 'early to the movie.', false, 'Directions to cimena');
-          }
-        }
-        else {
-          var leaveByTime = moment(showtime).subtract(res.data.route.realTime, 'seconds');
-          // if realtime data is unavailable, returns calculated drivetime time in seconds
-          if (moment(leaveByTime).isBefore()) {
-            var difference = moment().duration(moment().diff(leaveByTime));
-            var minutesLate = difference.asMinutes();
-            console.log('showtime', showtime);
-            console.log('leaveByTime', leaveByTime);
-            console.log('minutesLate', minutesLate);
-            console.log('res.data.route.realTime', res.data.route.realTime);
-            modal('Can you make it?', 'No, you would be ' + minutesLate + 'late to the movie.', false, 'Choose another movie');
-          } else {
-            var difference = moment().duration(leaveByTime.diff(moment()));
-            var minutesEarly = difference.asMinutes();
-            console.log('showtime', showtime);
-            console.log('leaveByTime', leaveByTime);
-            console.log('minutesEarly', minutesEarly);
-            console.log('res.data.route.realTime', res.data.route.realTime);
-            modal('Can you make it?', 'Yes, you will be ' + minutesEarly + 'early to the movie.', false, 'Directions to cimena');
-          }
-        }
+
+  var directions = {
+    'url': 'https://api.mapbox.com/directions/v5/mapbox/driving/' + from + '%3B'+ to + 
+    '?alternatives=true&geometries=geojson&language=en&overview=simplified&steps=true&access_token=pk.eyJ1Ijoiam9obmRhdmlzOTI3OTAiLCJhIjoiY2t4NDZlNWJ5MjVoYjJucW9kcm5jdGQxZyJ9.1CTxHYCYILbYZTJvrvtwqw'
+    };
+  
+  $.ajax(directions).done(function (res) {
+
+    var duration = res.routes[0].duration;
+    var arrivalTime = moment().add(duration, 'seconds');
+    arrivalTime = moment(arrivalTime).format(); 
+    console.log('currentDateUTC', currentDateUTC);
+    console.log('duration', duration);
+    console.log('arrivalTime', arrivalTime);
+    if (duration > 0) {
+      if (moment(arrivalTime).isAfter(currentDateUTC)) {
+        var minutesLate =  moment(arrivalTime).diff(showtime, 'minutes');
+        console.log('minutesLate', minutesLate);
+        modal('Can you make it?', 'No, you would be ' + minutesLate + 'late to the movie.', 'Choose another movie');
+      } else {
+        var minutesEarly =  moment(showtime).diff(arrivalTime, 'minutes');
+        console.log('minutesEarly', minutesEarly);
+        modal('Can you make it?', 'Yes, you will be ' + minutesEarly + 'early to the movie.', 'Directions to cimena');
       }
-      else {
-        modal("Error", "Could not find route between given locations");
-      }
-    })
-    .catch(function (err) {
-      console.log(err);
-      modal("Error", "Could not connect to mapquest.com");
-    })
+    }
+    else {
+      modal("Error", "Could not find route between given locations");
+    }
+  });
 }
 
 
@@ -379,7 +352,7 @@ function modalButtonHandler(text) {
   //   .addClass('button is-success mx-3')
   //   .text('Get Directions');
   // listShowtimeDirections.appendTo(listSecColBox);
-  }
+  // }
 
   toggleModal();
 }
@@ -399,45 +372,48 @@ function toggleModal() {
   }
 }
 
-document.querySelector("#get-events").addEventListener("click", function (filmsArray, currentDateUTC, currentDate) {
-  // When the show movies button is pressed the getFilms() function is called
-  getFilms();
-  // pulls the filmsArray from local storage and stores it into filmsArray varaible
-  filmsArray = localStorage.getItem('filmsArray')
-  // parsese the string back into an Array
-  filmsArray = JSON.parse(filmsArray)
-  // checks to see if there is something inside the filmsArray object in local storage
-  if(localStorage.getItem("filmsArray") === null) {
-  // if empty or nothing in storage, run getFilms
-  getFilms();
-  } 
-  // if there is an object in localstorage compare the dates
-  else{
-  // declaration of the dates and puts it into a format to compare the day numbers
-    currentDateUTC = moment().format();
-    currentDate = moment().format('YYYY-MM-DD');
-    var d = new Date(currentDateUTC)
-    var c = new Date(currentDate);
-  // if the days are the same then returns films array
-    if(d.getDate() === c.getDate()){
-      return filmsArray;
-  // if days are not the same then run getfilms function
-    } else {
-      getFilms();
-    }
-    var filmsLoaded = false;
-    document.querySelector("#get-films").addEventListener("click", function () {
-      moviesEl = $("#movies");
-      if (filmsLoaded) {
-        moviesEl.show();
-        $("#showtimes").empty();
-      }
-      // first time code runs getFilms sets filmLoaded to true so next time button is clicked it doesn't call api again
-      else {
-        filmsLoaded = true;
-        getFilms();
-      }
-    
+// document.querySelector("#get-events").addEventListener("click", function (filmsArray, currentDateUTC, currentDate) {
+//   // When the show movies button is pressed the getFilms() function is called
+//   getFilms();
+//   // pulls the filmsArray from local storage and stores it into filmsArray varaible
+//   filmsArray = localStorage.getItem('filmsArray')
+//   // parsese the string back into an Array
+//   filmsArray = JSON.parse(filmsArray)
+//   // checks to see if there is something inside the filmsArray object in local storage
+//   if (localStorage.getItem("filmsArray") === null) {
+//     // if empty or nothing in storage, run getFilms
+//     getFilms();
+//   }
+//   // if there is an object in localstorage compare the dates
+//   else {
+//     // declaration of the dates and puts it into a format to compare the day numbers
+//     currentDateUTC = moment().format();
+//     currentDate = moment().format('YYYY-MM-DD');
+//     var d = new Date(currentDateUTC)
+//     var c = new Date(currentDate);
+//     // if the days are the same then returns films array
+//     if (d.getDate() === c.getDate()) {
+//       return filmsArray;
+//       // if days are not the same then run getfilms function
+//     } else {
+//       getFilms();
+//     }
+//   }
+// });
+
+
+var filmsLoaded = false;
+document.querySelector("#get-films").addEventListener("click", function () {
+  moviesEl = $("#movies");
+  if (filmsLoaded) {
+    moviesEl.show();
+    $("#showtimes").empty();
+  }
+  // first time code runs getFilms sets filmLoaded to true so next time button is clicked it doesn't call api again
+  else {
+    filmsLoaded = true;
+    getFilms();
+  }
 });
 
 $(".modal-background").on("click", toggleModal);

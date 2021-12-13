@@ -20,7 +20,7 @@ var taylorAuth = "Basic VU9GVTo0SFJrWTNQVlMzcTY=";
 
 var currentDateUTC = moment().format();
 var currentDate = moment().format('YYYY-MM-DD');
-
+var filmsDate;
 
 function getFilms() {
   var films = {
@@ -46,7 +46,9 @@ function getFilms() {
 }
 // function that stores the filmsArray into localstorage
 function storeFilmsArray(filmsArray) {
+  filmsDate = moment();
   localStorage.setItem('filmsArray', JSON.stringify(filmsArray));
+  localStorage.setItem('filmsDate', JSON.stringify(filmsDate));
 }
 
 
@@ -423,14 +425,39 @@ function toggleModal() {
 var filmsLoaded = false;
 document.querySelector("#get-films").addEventListener("click", function () {
   moviesEl = $("#movies");
-  if (filmsLoaded) {
+  // first click after page load checks for stored data
+  if (!filmsLoaded) {
+
+    // pulls the filmsArray from local storage and stores it into filmsArray varaible
+    var filmsArray = localStorage.getItem('filmsArray');
+    filmsDate = localStorage.getItem('filmsDate');
+    // if there is data in the filmsArray
+    if (filmsArray && filmsDate) {
+      filmsDate = JSON.parse(filmsDate);
+      console.log(filmsDate.date)
+      if (moment(filmsDate).date() === moment().date()) {
+        console.log("using stored list");
+        filmsArray = JSON.parse(filmsArray); // parse the string into an Array
+        filmsLoaded = true;
+        buildFilmsList(filmsArray); // proceed to display films
+      }
+      else {
+        filmsLoaded = true;
+        console.log("getting new movies failed second check");
+        getFilms(); // api call for films
+      }
+    }
+    else {
+      filmsLoaded = true;
+      console.log("getting new movies failed 1rst check");
+      getFilms(); // api call for films
+    }
+  }
+  // if button is clicked again shows the movies available
+  else {
+    console.log("showing movie list");
     moviesEl.show();
     $("#showtimes").empty();
-  }
-  // first time code runs getFilms sets filmLoaded to true so next time button is clicked it doesn't call api again
-  else {
-    filmsLoaded = true;
-    getFilms();
   }
 });
 

@@ -431,29 +431,31 @@ document.querySelector("#get-films").addEventListener("click", function () {
     // pulls the filmsArray from local storage and stores it into filmsArray varaible
     var filmsArray = localStorage.getItem('filmsArray');
     filmsDate = localStorage.getItem('filmsDate');
-    // if there is data in the filmsArray
+    // checks if there is data in the films and filmsdate array
     if (filmsArray && filmsDate) {
       filmsDate = JSON.parse(filmsDate);
-      console.log(filmsDate.date)
+      // checks if todays date matches the stored date
       if (moment(filmsDate).date() === moment().date()) {
         console.log("using stored list");
         filmsArray = JSON.parse(filmsArray); // parse the string into an Array
-        filmsLoaded = true;
+        filmsLoaded = true; // next time this button is clicked it will toggle the movies list
         buildFilmsList(filmsArray); // proceed to display films
       }
+      // if dates weren't a match
       else {
         filmsLoaded = true;
-        console.log("getting new movies failed second check");
+        console.log("getting new movies failed 2nd check");
         getFilms(); // api call for films
       }
     }
+    // if no data found in storage
     else {
       filmsLoaded = true;
       console.log("getting new movies failed 1rst check");
       getFilms(); // api call for films
     }
   }
-  // if button is clicked again shows the movies available
+  // if button is clicked again it brings the movie list up
   else {
     console.log("showing movie list");
     moviesEl.show();

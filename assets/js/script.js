@@ -14,9 +14,9 @@ var darrylClient = "";
 var darrylApiKey = "";
 var darrylAuth = "";
 
-var taylorClient = "";
-var taylorApiKey = "";
-var taylorAuth = "";
+var taylorClient = "UOFU";
+var taylorApiKey = "EqH5eeXVDL5kz6Lnjuw5k3OXpx4JqAng4xCiay4l";
+var taylorAuth = "Basic VU9GVTo0SFJrWTNQVlMzcTY=";
 
 var currentDateUTC = moment().format();
 var currentDate = moment().format('YYYY-MM-DD');
@@ -59,7 +59,7 @@ function buildFilmsList(filmsArray) {
   }
 }
 
-function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer, filmRating, filmRatingImage, filmRatingAdvisory){
+function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer, filmRating, filmRatingImage, filmRatingAdvisory) {
 
   // var filmColumns = $('<div>');
   // filmColumns.addClass('columns is-mobile is-multiline is-centered');
@@ -109,6 +109,8 @@ function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer, fil
   filmColumn.appendTo(movies);
 
   $('#' + filmID + 'poster').on("click", function () {
+    console.log("movies display");
+    $("#movies").hide();
     movies = '';
     getCurrentPos(filmID);
 
@@ -121,11 +123,11 @@ function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer, fil
   $('#' + filmID + 'rating').on("click", function () {
     modal('Rated ' + filmRating, filmRatingAdvisory, false, 'Close');
   });
-  
+
 }
 
 function getCurrentPos(filmID) {
-  
+
   currentLatitude = 0;
   curentLongitude = 0;
 
@@ -152,22 +154,22 @@ function getApi(filmID, currentLoc) {
   // create todays date and format like in line 129
 
   var cinemas = {
-  "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=" + filmID + "&date=" + currentDate + "&n=15",
-  "method": "GET",
-  "timeout": 0,
-  "headers": {
-    "client": johnClient,
-    "x-api-key": johnApiKey,
-    "authorization": johnAuth,
-    "territory": "US",
-    "api-version": "v200",
-    "geolocation": currentLoc,
-    "device-datetime": currentDateUTC
-  },
-};
+    "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=" + filmID + "&date=" + currentDate + "&n=15",
+    "method": "GET",
+    "timeout": 0,
+    "headers": {
+      "client": johnClient,
+      "x-api-key": johnApiKey,
+      "authorization": johnAuth,
+      "territory": "US",
+      "api-version": "v200",
+      "geolocation": currentLoc,
+      "device-datetime": currentDateUTC
+    },
+  };
   $.ajax(cinemas).done(function (response) {
     var cinemasArray = response.cinemas;
-    console.log('cinemasArray', cinemasArray);   
+    console.log('cinemasArray', cinemasArray);
     buildList(cinemasArray, currentLoc);
   })
 };
@@ -225,9 +227,9 @@ function addListEl(cinemaTitle, showtimes, cinemaID, currentLoc) {
       console.log(showtime);
       // getCinemaLocation(cinemaID, currentLoc, showtime);
     });
-    
+
   }
-  
+
   // listEl.appendTo(showtimesDiv);
 
   // var titleFixed = showtimeInfo.split(' ').join('+');
@@ -245,24 +247,24 @@ function getCinemaLocation(cinemaID, currentLoc, showtime) {
   showtime = moment(showtime).calendar().format();
   // create todays date and format like in line 129
   var cinema = {
-  "url": "https://api-gate2.movieglu.com/cinemaDetails/?cinema_id=" + cinemaID,
-  "method": "GET",
-  "timeout": 0,
-  "headers": {
-    "client": johnClient,
-    "x-api-key": johnApiKey,
-    "authorization": johnAuth,
-    "territory": "US",
-    "api-version": "v200",
-  },
-};
-console.log(cinema)
+    "url": "https://api-gate2.movieglu.com/cinemaDetails/?cinema_id=" + cinemaID,
+    "method": "GET",
+    "timeout": 0,
+    "headers": {
+      "client": johnClient,
+      "x-api-key": johnApiKey,
+      "authorization": johnAuth,
+      "territory": "US",
+      "api-version": "v200",
+    },
+  };
+  console.log(cinema)
   $.ajax(cinema).done(function (response) {
-    
+
     var cinemaLoc = response.lat + ',' + response.lng;
     console.log('Cinema Location', cinemaLoc);
     getMapData(currentLoc, cinemaLoc, showtime);
-    
+
   })
 };
 
@@ -274,7 +276,7 @@ function getMapData(from, to, showtime) {
         if (res.data.route.realTime < 10000000) {
           var leaveByTime = moment(showtime).subtract(res.data.route.realTime, 'seconds');
           // if realtime data is unavailable, returns calculated drivetime time in seconds
-          if (moment(leaveByTime).isBefore()){
+          if (moment(leaveByTime).isBefore()) {
             var difference = moment().duration(moment().diff(leaveByTime));
             var minutesLate = difference.asMinutes();
             console.log('showtime', showtime);
@@ -295,7 +297,7 @@ function getMapData(from, to, showtime) {
         else {
           var leaveByTime = moment(showtime).subtract(res.data.route.realTime, 'seconds');
           // if realtime data is unavailable, returns calculated drivetime time in seconds
-          if (moment(leaveByTime).isBefore()){
+          if (moment(leaveByTime).isBefore()) {
             var difference = moment().duration(moment().diff(leaveByTime));
             var minutesLate = difference.asMinutes();
             console.log('showtime', showtime);
@@ -328,7 +330,8 @@ function getMapData(from, to, showtime) {
 // modal use
 // for a simple message use a string for title and info 
 // for a form isForm needs to be true
-function modal(title, info, isForm, btnText) {
+function modal(title, info, btnText) {
+  var modalContentEl = $("#modal-content");
 
   if (title === "Error") {
     modalContentEl.addClass("is-danger");
@@ -337,15 +340,15 @@ function modal(title, info, isForm, btnText) {
     modalContentEl.addClass("is-success");
   }
 
-  modalHeadEl.append($("<p>").text(title));
-  modalInfoEl.text(info);
+  $("#modal-title").append($("<p>").text(title));
+  $("#modal-info").text(info);
 
   if (btnText) {
     var modalFootEl = $("<footer>").addClass("modal-card-foot")
     var modalBtn = $("<button>").addClass("button is-success").attr("id", "modal-button").text(btnText);
     modalFootEl.append(modalBtn);
     modalContentEl.append(modalFootEl);
-    modalBtn.on("click", function() {
+    modalBtn.on("click", function () {
       var btnVal = $(this).text();
       modalButtonHandler(btnVal);
     });
@@ -365,7 +368,7 @@ function modalButtonHandler(text) {
   toggleModal();
 }
 
-// auto called in modal, needs to be called if using additional custom buttons on modal
+// auto called in modal, needs to be called if customizing modal structure dynamically 
 function toggleModal() {
   var display = $(".modal");
   if (display.hasClass("is-active")) {
@@ -380,8 +383,18 @@ function toggleModal() {
   }
 }
 
-document.querySelector("#get-events").addEventListener("click", function () {
-  getFilms();
+var filmsLoaded = false;
+document.querySelector("#get-films").addEventListener("click", function () {
+  moviesEl = $("#movies");
+  if (filmsLoaded) {
+    moviesEl.show();
+    $("#showtimes").empty();
+  }
+  // first time code runs getFilms sets filmLoaded to true so next time button is clicked it doesn't call api again
+  else {
+    filmsLoaded = true;
+    getFilms();
+  }
 });
 
 $(".modal-background").on("click", toggleModal);

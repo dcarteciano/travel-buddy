@@ -225,8 +225,6 @@ function addListEl(cinemaTitle, showtimes, cinemaID) {
   var listThirdColEl = $('<div>');
   listThirdColEl.addClass('column is-one-third level-right is-flex-wrap-wrap').appendTo(listNavEl);
 
-  console.log(showtimes);
-
   for (var i = 0; i < showtimes.length; i++) {
     var showtime = showtimes[i].start_time;
     showtimeText = moment(showtime, 'HH:mm').format('h:mm a');
@@ -240,26 +238,12 @@ function addListEl(cinemaTitle, showtimes, cinemaID) {
     $('#' + cinemaID + 'showtime' + i).on("click", function () {
       var showtimeDay = moment().format('YYYY-MM-DD');
       showtime = showtimeDay + 'T' + showtime + ':00-00:00';
-      console.log('showtime', showtime);
-      getCinemaLocation(cinemaID, showtime);
+      getCinemaLocation(cinemaID, showtime, cinemaTitle);
     });
-
   }
-
-  // listEl.appendTo(showtimesDiv);
-
-  // var titleFixed = showtimeInfo.split(' ').join('+');
-  // // https://www.google.com/maps/dir/40.4752752,-111.9263536/The+Depot/@40.6257634,-112.0496547,11
-  // var listShowtimeDirections = $('<a>')
-  //   .attr('href', 'https://www.google.com/maps/dir/' + from + '/' + titleFixed)
-  //   .attr('target', '_blank')
-  //   .addClass('button is-success mx-3')
-  //   .text('Get Directions');
-  // listShowtimeDirections.appendTo(listSecColBox);
-
 };
 
-function getCinemaLocation(cinemaID, showtime) {
+function getCinemaLocation(cinemaID, showtime, cinemaTitle) {
   // create todays date and format like in line 129
   var cinema = {
     "url": "https://api-gate2.movieglu.com/cinemaDetails/?cinema_id=" + cinemaID,
@@ -275,10 +259,10 @@ function getCinemaLocation(cinemaID, showtime) {
     },
   };
   $.ajax(cinema).done(function (response) {
+    var directionsLoc = currentLatitude + ',' + curentLongitude;
     var currentLocCinema = curentLongitude + '%2C' + currentLatitude;
     var cinemaLoc = response.lng + '%2C' + response.lat;
-    console.log('Cinema Location', cinemaLoc);
-    getMapData(currentLocCinema, cinemaLoc, showtime);
+    getMapData(currentLocCinema, cinemaLoc, showtime, cinemaTitle, directionsLoc);
 
     })
     .fail(function () {
@@ -287,7 +271,7 @@ function getCinemaLocation(cinemaID, showtime) {
 };
 
 // from and to can either be "lat,lon" or an adress
-function getMapData(from, to, showtime) {
+function getMapData(from, to, showtime, cinemaTitle, directionsLoc) {
 
   var directions = {
     'url': 'https://api.mapbox.com/directions/v5/mapbox/driving/' + from + '%3B'+ to + 
@@ -295,22 +279,27 @@ function getMapData(from, to, showtime) {
     };
   
   $.ajax(directions).done(function (res) {
-
-    var duration = res.routes[0].duration;
-    var arrivalTime = moment().add(duration, 'seconds');
+    var duration = res.routes[0].duration / 60;
+    duration = Math.round(duration);
+    var arrivalTime = moment(currentDateUTC).add(duration, 'minutes');
     arrivalTime = moment(arrivalTime).format(); 
     console.log('currentDateUTC', currentDateUTC);
+    console.log('showtime', showtime);
     console.log('duration', duration);
     console.log('arrivalTime', arrivalTime);
     if (duration > 0) {
-      if (moment(arrivalTime).isAfter(currentDateUTC)) {
+      if (moment(arrivalTime).isAfter(showtime)) {
         var minutesLate =  moment(arrivalTime).diff(showtime, 'minutes');
         console.log('minutesLate', minutesLate);
-        modal('Can you make it?', 'No, you would be ' + minutesLate + 'late to the movie.', 'Choose another movie');
+        modal('Can you make it?', 'No, you would be ' + minutesLate + 
+              ' minutes late to the movie. Choose another showtime or click below if you still want to go', 
+              'Directions to cinema', directionsLoc, cinemaTitle);
       } else {
         var minutesEarly =  moment(showtime).diff(arrivalTime, 'minutes');
         console.log('minutesEarly', minutesEarly);
-        modal('Can you make it?', 'Yes, you will be ' + minutesEarly + 'early to the movie.', 'Directions to cimena');
+        modal('Can you make it?', 'Yes, you will be ' + minutesEarly + 
+              ' minutes early to the movie.', 
+              'Directions to cinema', directionsLoc, cinemaTitle);
       }
     }
     else {
@@ -319,11 +308,10 @@ function getMapData(from, to, showtime) {
   });
 }
 
-
 // modal use
 // for a simple message use a string for title and info 
 // add if statement in modalButtonHandler if using btnText
-function modal(title, info, btnText) {
+function modal(title, info, btnText, from, cinemaTitle) {
   var modalContentEl = $("#modal-content");
 
   // styles
@@ -340,38 +328,17 @@ function modal(title, info, btnText) {
 
   // optional functionality
   if (btnText) {
+    var titleFixed = cinemaTitle.split(' ').join('+');
     var modalFootEl = $("<footer>").addClass("modal-card-foot")
-    var modalBtn = $("<button>").addClass("button is-success").attr("id", "modal-button").text(btnText);
+    var modalBtn = $("<a>")
+    .addClass("button is-success")
+    .attr("id", "modal-button")
+    .text(btnText)
+    .attr('href', 'https://www.google.com/maps/dir/' + from + '/' + titleFixed)
+    .attr('target', '_blank')
     modalFootEl.append(modalBtn);
     modalContentEl.append(modalFootEl);
-    modalBtn.on("click", function () {
-      var btnVal = $(this).text();
-      modalButtonHandler(btnVal);
-    });
   }
-
-  toggleModal();
-}
-
-function modalButtonHandler(text) {
-  // example 
-
-  // if(text === "your modal button text") {
-  //   // any code you want executed from button click
-  // var titleFixed = showtimeInfo.split(' ').join('+');
-  // // https://www.google.com/maps/dir/40.4752752,-111.9263536/The+Depot/@40.6257634,-112.0496547,11
-  // var listShowtimeDirections = $('<a>')
-  //   .attr('href', 'https://www.google.com/maps/dir/' + from + '/' + titleFixed)
-  //   .attr('target', '_blank')
-  //   .addClass('button is-success mx-3')
-  //   .text('Get Directions');
-  // listShowtimeDirections.appendTo(listSecColBox);
-  // }
-  if (text === "Test") {
-    console.log("Modal Button Test Successful");
-  }
-  // additional if statments
-
   toggleModal();
 }
 

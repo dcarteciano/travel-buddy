@@ -21,6 +21,8 @@ var taylorAuth = "";
 var currentDateUTC = moment().format();
 var currentDate = moment().format('YYYY-MM-DD');
 
+
+
 function getFilms() {
   var films = {
     "url": "https://api-gate2.movieglu.com/filmsNowShowing/?n=15",
@@ -111,7 +113,6 @@ function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer, fil
   $('#' + filmID + 'poster').on("click", function () {
     movies = '';
     getCurrentPos(filmID);
-
   });
 
   $('#' + filmID + 'info').on("click", function () {
@@ -221,9 +222,9 @@ function addListEl(cinemaTitle, showtimes, cinemaID, currentLoc) {
       .appendTo(listThirdColEl);
 
     $('#' + cinemaID + 'showtime' + i).on("click", function () {
-      // showtime = moment(showtime, 'h:mm a').calendar().format();
+      showtime = moment(showtime, 'h:mm a').calendar().format();
       console.log(showtime);
-      // getCinemaLocation(cinemaID, currentLoc, showtime);
+      getCinemaLocation(cinemaID, currentLoc, showtime);
     });
     
   }
@@ -358,9 +359,17 @@ function modalButtonHandler(text) {
   console.log("Modal Button Text: ", text);
   // example 
 
-  // if(text === "your modal button text") {
-  //   any code you want executed from button click
-  // }
+  if(text === "your modal button text") {
+    // any code you want executed from button click
+  var titleFixed = showtimeInfo.split(' ').join('+');
+  // https://www.google.com/maps/dir/40.4752752,-111.9263536/The+Depot/@40.6257634,-112.0496547,11
+  var listShowtimeDirections = $('<a>')
+    .attr('href', 'https://www.google.com/maps/dir/' + from + '/' + titleFixed)
+    .attr('target', '_blank')
+    .addClass('button is-success mx-3')
+    .text('Get Directions');
+  listShowtimeDirections.appendTo(listSecColBox);
+  }
 
   toggleModal();
 }

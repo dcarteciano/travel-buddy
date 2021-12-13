@@ -20,7 +20,7 @@ var taylorAuth = "Basic VU9GVTo0SFJrWTNQVlMzcTY=";
 
 var currentDateUTC = moment().format();
 var currentDate = moment().format('YYYY-MM-DD');
-
+var filmsDate;
 
 function getFilms() {
   var films = {
@@ -36,19 +36,24 @@ function getFilms() {
       "device-datetime": currentDateUTC
     },
   };
-  $.ajax(films).done(function (res) {
-    var filmsArray = res.films;
-    console.log('filmsArray', filmsArray);
-    buildFilmsList(filmsArray);
-    storeFilmsArray(filmsArray);
-  });
+  $.ajax(films)
+    .done(function (res) {
+      var filmsArray = res.films;
+      console.log('filmsArray', filmsArray);
+      buildFilmsList(filmsArray);
+      storeFilmsArray(filmsArray);
+    })
+    .fail(function () {
+      modal("Error", "We had trouble retrieving data from movieglu.com");
+    })
+};
 
-}
 // function that stores the filmsArray into localstorage
 function storeFilmsArray(filmsArray) {
+  filmsDate = moment();
   localStorage.setItem('filmsArray', JSON.stringify(filmsArray));
+  localStorage.setItem('filmsDate', JSON.stringify(filmsDate));
 }
-
 
 function buildFilmsList(filmsArray) {
   // takes the different objects of the event array and stores them to seperate variables
@@ -173,11 +178,15 @@ function getApi(filmID, currentLoc) {
       "device-datetime": currentDateUTC
     },
   };
-  $.ajax(cinemas).done(function (response) {
-    var cinemasArray = response.cinemas;
-    console.log('cinemasArray', cinemasArray);
-    buildList(cinemasArray);
-  })
+  $.ajax(cinemas)
+    .done(function (response) {
+      var cinemasArray = response.cinemas;
+      console.log('cinemasArray', cinemasArray);
+      buildList(cinemasArray, currentLoc);
+    })
+    .fail(function () {
+      modal("Error", "We had trouble retrieving data from movieglu.com");
+    })
 };
 
 function buildList(cinemasArray, currentLoc) {
@@ -271,7 +280,10 @@ function getCinemaLocation(cinemaID, showtime) {
     console.log('Cinema Location', cinemaLoc);
     getMapData(currentLocCinema, cinemaLoc, showtime);
 
-  })
+    })
+    .fail(function () {
+      modal("Error", "We had trouble retrieving data from movieglu.com");
+    });
 };
 
 // from and to can either be "lat,lon" or an adress
@@ -310,10 +322,11 @@ function getMapData(from, to, showtime) {
 
 // modal use
 // for a simple message use a string for title and info 
-// for a form isForm needs to be true
+// add if statement in modalButtonHandler if using btnText
 function modal(title, info, btnText) {
   var modalContentEl = $("#modal-content");
 
+  // styles
   if (title === "Error") {
     modalContentEl.addClass("is-danger");
   }
@@ -321,9 +334,11 @@ function modal(title, info, btnText) {
     modalContentEl.addClass("is-success");
   }
 
+  // text elements
   $("#modal-title").append($("<p>").text(title));
   $("#modal-info").text(info);
 
+  // optional functionality
   if (btnText) {
     var modalFootEl = $("<footer>").addClass("modal-card-foot")
     var modalBtn = $("<button>").addClass("button is-success").attr("id", "modal-button").text(btnText);
@@ -339,7 +354,6 @@ function modal(title, info, btnText) {
 }
 
 function modalButtonHandler(text) {
-  console.log("Modal Button Text: ", text);
   // example 
 
   // if(text === "your modal button text") {
@@ -353,6 +367,10 @@ function modalButtonHandler(text) {
   //   .text('Get Directions');
   // listShowtimeDirections.appendTo(listSecColBox);
   // }
+  if (text === "Test") {
+    console.log("Modal Button Test Successful");
+  }
+  // additional if statments
 
   toggleModal();
 }
@@ -372,47 +390,44 @@ function toggleModal() {
   }
 }
 
-// document.querySelector("#get-events").addEventListener("click", function (filmsArray, currentDateUTC, currentDate) {
-//   // When the show movies button is pressed the getFilms() function is called
-//   getFilms();
-//   // pulls the filmsArray from local storage and stores it into filmsArray varaible
-//   filmsArray = localStorage.getItem('filmsArray')
-//   // parsese the string back into an Array
-//   filmsArray = JSON.parse(filmsArray)
-//   // checks to see if there is something inside the filmsArray object in local storage
-//   if (localStorage.getItem("filmsArray") === null) {
-//     // if empty or nothing in storage, run getFilms
-//     getFilms();
-//   }
-//   // if there is an object in localstorage compare the dates
-//   else {
-//     // declaration of the dates and puts it into a format to compare the day numbers
-//     currentDateUTC = moment().format();
-//     currentDate = moment().format('YYYY-MM-DD');
-//     var d = new Date(currentDateUTC)
-//     var c = new Date(currentDate);
-//     // if the days are the same then returns films array
-//     if (d.getDate() === c.getDate()) {
-//       return filmsArray;
-//       // if days are not the same then run getfilms function
-//     } else {
-//       getFilms();
-//     }
-//   }
-// });
-
-
 var filmsLoaded = false;
 document.querySelector("#get-films").addEventListener("click", function () {
   moviesEl = $("#movies");
-  if (filmsLoaded) {
+  // first click after page load checks for stored data
+  if (!filmsLoaded) {
+
+    // pulls the filmsArray from local storage and stores it into filmsArray varaible
+    var filmsArray = localStorage.getItem('filmsArray');
+    filmsDate = localStorage.getItem('filmsDate');
+    // checks if there is data in the films and filmsdate array
+    if (filmsArray && filmsDate) {
+      filmsDate = JSON.parse(filmsDate);
+      // checks if todays date matches the stored date
+      if (moment(filmsDate).date() === moment().date()) {
+        console.log("using stored list");
+        filmsArray = JSON.parse(filmsArray); // parse the string into an Array
+        filmsLoaded = true; // next time this button is clicked it will toggle the movies list
+        buildFilmsList(filmsArray); // proceed to display films
+      }
+      // if dates weren't a match
+      else {
+        filmsLoaded = true;
+        console.log("getting new movies failed 2nd check");
+        getFilms(); // api call for films
+      }
+    }
+    // if no data found in storage
+    else {
+      filmsLoaded = true;
+      console.log("getting new movies failed 1rst check");
+      getFilms(); // api call for films
+    }
+  }
+  // if button is clicked again it brings the movie list up
+  else {
+    console.log("showing movie list");
     moviesEl.show();
     $("#showtimes").empty();
-  }
-  // first time code runs getFilms sets filmLoaded to true so next time button is clicked it doesn't call api again
-  else {
-    filmsLoaded = true;
-    getFilms();
   }
 });
 

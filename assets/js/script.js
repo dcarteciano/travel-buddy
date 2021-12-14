@@ -3,12 +3,13 @@ var movies = document.querySelector('#movies');
 var showtimesDiv = document.querySelector('#showtimes');
 var currentLatitude;
 var curentLongitude;
+var currentLoc;
 // last modal input, if value is needed elsewhere it should be stored in a separate var as a new input in modal will overwrite the var
 var modelInput;
 
-var johnClient = "UNIV_55";
-var johnApiKey = "5SNa2JxuS81Ez99j1qXhA8bWvOiWsWjd14bJtU1T";
-var johnAuth = "Basic VU5JVl81NTpMMzVtemRyenhUQ3Q=";
+var johnClient = "BYU";
+var johnApiKey = "jKtK0wCFgQ617lSilFMPfYtV3ZUcbji6qaMn3ang";
+var johnAuth = "Basic QllVOkxZOFlieUJLWjM3Zg==";
 
 var darrylClient = "";
 var darrylApiKey = "";
@@ -29,9 +30,9 @@ function getFilms() {
     "timeout": 0,
     "headers": {
       "api-version": "v200",
-      "client": taylorClient,
-      "x-api-key": taylorApiKey,
-      "authorization": taylorAuth,
+      "client": johnClient,
+      "x-api-key": johnApiKey,
+      "authorization": johnAuth,
       "territory": "US",
       "device-datetime": currentDateUTC
     },
@@ -141,6 +142,7 @@ function getCurrentPos(filmID) {
 
   currentLatitude = 0;
   curentLongitude = 0;
+  currentLoc = 0;
 
   function success(position) {
     currentLatitude = position.coords.latitude;
@@ -169,9 +171,9 @@ function getApi(filmID, currentLoc) {
     "method": "GET",
     "timeout": 0,
     "headers": {
-      "client": taylorClient,
-      "x-api-key": taylorApiKey,
-      "authorization": taylorAuth,
+      "client": johnClient,
+      "x-api-key": johnApiKey,
+      "authorization": johnAuth,
       "territory": "US",
       "api-version": "v200",
       "geolocation": currentLoc,
@@ -182,14 +184,14 @@ function getApi(filmID, currentLoc) {
     .done(function (response) {
       var cinemasArray = response.cinemas;
       console.log('cinemasArray', cinemasArray);
-      buildList(cinemasArray, currentLoc);
+      buildList(cinemasArray);
     })
     .fail(function () {
       modal("Error", "We had trouble retrieving data from movieglu.com");
     })
 };
 
-function buildList(cinemasArray, currentLoc) {
+function buildList(cinemasArray) {
   // takes the different objects of the event array and stores them to seperate variables
   for (var i = 0; i < cinemasArray.length; i++) {
     var cinemaTitle = cinemasArray[i].cinema_name;
@@ -238,6 +240,7 @@ function addListEl(cinemaTitle, showtimes, cinemaID) {
     $('#' + cinemaID + 'showtime' + i).on("click", function () {
       var showtimeDay = moment().format('YYYY-MM-DD');
       showtime = showtimeDay + 'T' + showtime + ':00-00:00';
+      showtime = moment.utc(showtime, 'YYYY-MM-DD[T]HH:mm[Z]');
       getCinemaLocation(cinemaID, showtime, cinemaTitle);
     });
   }
@@ -250,9 +253,9 @@ function getCinemaLocation(cinemaID, showtime, cinemaTitle) {
     "method": "GET",
     "timeout": 0,
     "headers": {
-      "client": taylorClient,
-      "x-api-key": taylorApiKey,
-      "authorization": taylorAuth,
+      "client": johnClient,
+      "x-api-key": johnApiKey,
+      "authorization": johnAuth,
       "territory": "US",
       "api-version": "v200",
       "device-datetime": currentDateUTC
@@ -281,8 +284,9 @@ function getMapData(from, to, showtime, cinemaTitle, directionsLoc) {
   $.ajax(directions).done(function (res) {
     var duration = res.routes[0].duration / 60;
     duration = Math.round(duration);
+    currentDateUTC = moment.utc(currentDateUTC, 'YYYY-MM-DD[T]HH:mm[Z]');
     var arrivalTime = moment(currentDateUTC).add(duration, 'minutes');
-    arrivalTime = moment(arrivalTime).format(); 
+    arrivalTime =  moment.utc(arrivalTime, 'YYYY-MM-DD[T]HH:mm[Z]');
     console.log('currentDateUTC', currentDateUTC);
     console.log('showtime', showtime);
     console.log('duration', duration);
@@ -290,22 +294,67 @@ function getMapData(from, to, showtime, cinemaTitle, directionsLoc) {
     if (duration > 0) {
       if (moment(arrivalTime).isAfter(showtime)) {
         var minutesLate =  moment(arrivalTime).diff(showtime, 'minutes');
-        console.log('minutesLate', minutesLate);
-        modal('Can you make it?', 'No, you would be ' + minutesLate + 
-              ' minutes late to the movie. Choose another showtime or click below if you still want to go', 
-              'Directions to cinema', directionsLoc, cinemaTitle);
+        if (minutesLate > 59){
+          var hoursMins = timeConvert(minutesLate);
+          console.log('minutesLate', minutesLate);
+          modal('Can you make it?', 'No, you would be ' + hoursMins + 
+                ' late to the movie. Choose another showtime or click below if you still want to go', 
+                'Directions to cinema', directionsLoc, cinemaTitle);
+        } else if (minutesLate < 60){
+          console.log('minutesLate', minutesLate);
+          modal('Can you make it?', 'No, you would be ' + minutesLate + 
+                ' minutes late to the movie. Choose another showtime or click below if you still want to go', 
+                'Directions to cinema', directionsLoc, cinemaTitle);
+        } else if (minutesLate === 1){
+          console.log('minutesLate', minutesLate);
+          modal('Can you make it?', 'No, you would be ' + minutesLate + 
+                ' minute late to the movie. Choose another showtime or click below if you still want to go', 
+                'Directions to cinema', directionsLoc, cinemaTitle);
+        }
       } else {
         var minutesEarly =  moment(showtime).diff(arrivalTime, 'minutes');
-        console.log('minutesEarly', minutesEarly);
-        modal('Can you make it?', 'Yes, you will be ' + minutesEarly + 
-              ' minutes early to the movie.', 
-              'Directions to cinema', directionsLoc, cinemaTitle);
+        if (minutesEarly > 59){
+          var hoursMins = timeConvert(minutesEarly);
+          console.log('minutesEarly', minutesEarly);
+          modal('Can you make it?', 'Yes, you will be ' + hoursMins + 
+                ' early to the movie.', 
+                'Directions to cinema', directionsLoc, cinemaTitle);
+        } else if (minutesEarly < 60){
+          console.log('minutesEarly', minutesEarly);
+          modal('Can you make it?', 'Yes, you will be ' + minutesEarly + 
+                ' minutes early to the movie.', 
+                'Directions to cinema', directionsLoc, cinemaTitle);
+        } else if (minutesEarly === 1){
+          console.log('minutesEarly', minutesEarly);
+          modal('Can you make it?', 'Yes, you will be ' + minutesEarly + 
+                ' minute early to the movie.', 
+                'Directions to cinema', directionsLoc, cinemaTitle);
+        }
       }
     }
     else {
       modal("Error", "Could not find route between given locations");
     }
   });
+}
+
+function timeConvert(n) {
+  var num = n;
+  var hours = (num / 60);
+  var rhours = Math.floor(hours);
+  var minutes = (hours - rhours) * 60;
+  var rminutes = Math.round(minutes);
+  if (rhours > 1 && rminutes > 1){
+    return rhours + " hours and " + rminutes + " minutes";
+  } else if (rhours > 1 && rminutes === 1){
+    return rhours + " hours and " + rminutes + " minute";
+  } else if (rhours === 1 && rminute === 1){
+    return rhours + " hour and " + rminutes + " minute";
+  } else if (rhours > 1 && rminutes === 0){
+    return rhours + " hours";
+  } else if (rhours === 1 && rminutes === 0){
+    return rhours + " hour";
+  }
 }
 
 // modal use

@@ -348,7 +348,7 @@ function timeConvert(n) {
     return rhours + " hours and " + rminutes + " minutes";
   } else if (rhours > 1 && rminutes === 1){
     return rhours + " hours and " + rminutes + " minute";
-  } else if (rhours === 1 && rminute === 1){
+  } else if (rhours === 1 && rminutes === 1){
     return rhours + " hour and " + rminutes + " minute";
   } else if (rhours > 1 && rminutes === 0){
     return rhours + " hours";

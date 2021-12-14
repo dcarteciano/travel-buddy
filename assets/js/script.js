@@ -318,7 +318,7 @@ function getMapData(from, to, showtime, cinemaTitle, directionsLoc) {
           var hoursMins = timeConvert(minutesLate);
           console.log('minutesLate', minutesLate);
           //displays how many minutes you will be late by and gives you a button to get the driving directions in Google maps
-          modal('Can you make it?', 'No, you would be ' + hoursMins + 
+          modal('Can we make it?', 'No, you would be ' + hoursMins + 
                 ' late to the movie. Choose another showtime or click below if you still want to go', 
                 'Directions to cinema', directionsLoc, cinemaTitle);
           duration = 0;
@@ -329,7 +329,7 @@ function getMapData(from, to, showtime, cinemaTitle, directionsLoc) {
         } else if (minutesLate < 60){
           //displays how many minutes you will be late by and gives you a button to get the driving directions in Google maps
           console.log('minutesLate', minutesLate);
-          modal('Can you make it?', 'No, you would be ' + minutesLate + 
+          modal('Can we make it?', 'No, you would be ' + minutesLate + 
                 ' minutes late to the movie. Choose another showtime or click below if you still want to go', 
                 'Directions to cinema', directionsLoc, cinemaTitle);
           duration = 0;
@@ -339,7 +339,7 @@ function getMapData(from, to, showtime, cinemaTitle, directionsLoc) {
         } else if (minutesLate === 1){
           //displays how many minutes you will be late by and gives you a button to get the driving directions in Google maps
           console.log('minutesLate', minutesLate);
-          modal('Can you make it?', 'No, you would be ' + minutesLate + 
+          modal('Can we make it?', 'No, you would be ' + minutesLate + 
                 ' minute late to the movie. Choose another showtime or click below if you still want to go', 
                 'Directions to cinema', directionsLoc, cinemaTitle);
           duration = 0;
@@ -354,7 +354,7 @@ function getMapData(from, to, showtime, cinemaTitle, directionsLoc) {
           var hoursMins = timeConvert(minutesEarly);
           console.log('minutesEarly', minutesEarly);
           //displays how many minutes you will be early and gives you a button to get the driving directions in Google maps
-          modal('Can you make it?', 'Yes, you will be ' + hoursMins + 
+          modal('Can we make it?', 'Yes, you will be ' + hoursMins + 
                 ' early to the movie.', 
                 'Directions to cinema', directionsLoc, cinemaTitle);
           duration = 0;
@@ -365,7 +365,7 @@ function getMapData(from, to, showtime, cinemaTitle, directionsLoc) {
         } else if (minutesEarly < 60){
           console.log('minutesEarly', minutesEarly);
           //displays how many minutes you will be early and gives you a button to get the driving directions in Google maps
-          modal('Can you make it?', 'Yes, you will be ' + minutesEarly + 
+          modal('Can we make it?', 'Yes, you will be ' + minutesEarly + 
                 ' minutes early to the movie.', 
                 'Directions to cinema', directionsLoc, cinemaTitle);
           duration = 0;
@@ -375,7 +375,7 @@ function getMapData(from, to, showtime, cinemaTitle, directionsLoc) {
         } else if (minutesEarly === 1){
           console.log('minutesEarly', minutesEarly);
           //displays how many minutes you will be early and gives you a button to get the driving directions in Google maps
-          modal('Can you make it?', 'Yes, you will be ' + minutesEarly + 
+          modal('Can we make it?', 'Yes, you will be ' + minutesEarly + 
                 ' minute early to the movie.', 
                 'Directions to cinema', directionsLoc, cinemaTitle);
           duration = 0;

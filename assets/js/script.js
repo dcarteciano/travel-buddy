@@ -1,12 +1,18 @@
+// Global Variables
 var addButton = document.querySelector('#add-item');
 var movies = document.querySelector('#movies');
 var showtimesDiv = document.querySelector('#showtimes');
 var currentLatitude;
 var curentLongitude;
 var currentLoc;
+var currentDateUTC = moment().format();
+var currentDate = moment().format('YYYY-MM-DD');
+var filmsDate;
+
 // last modal input, if value is needed elsewhere it should be stored in a separate var as a new input in modal will overwrite the var
 var modelInput;
 
+// API keys, because of the limits that these APIs put on us, we had to generate multiple keys to be able to keep using this app
 var johnClient = "BYU";
 var johnApiKey = "jKtK0wCFgQ617lSilFMPfYtV3ZUcbji6qaMn3ang";
 var johnAuth = "Basic QllVOkxZOFlieUJLWjM3Zg==";
@@ -19,10 +25,7 @@ var taylorClient = "UOFU";
 var taylorApiKey = "EqH5eeXVDL5kz6Lnjuw5k3OXpx4JqAng4xCiay4l";
 var taylorAuth = "Basic VU9GVTo0SFJrWTNQVlMzcTY=";
 
-var currentDateUTC = moment().format();
-var currentDate = moment().format('YYYY-MM-DD');
-var filmsDate;
-
+// First movieGlu api to get a list of movies that are currently playing in theaters
 function getFilms() {
   var films = {
     "url": "https://api-gate2.movieglu.com/filmsNowShowing/?n=15",
@@ -42,6 +45,7 @@ function getFilms() {
       var filmsArray = res.films;
       console.log('filmsArray', filmsArray);
       buildFilmsList(filmsArray);
+      // Stores this array in localStorage for repeated use in a single day
       storeFilmsArray(filmsArray);
     })
     .fail(function () {
@@ -57,14 +61,15 @@ function storeFilmsArray(filmsArray) {
 }
 
 function buildFilmsList(filmsArray) {
-  // takes the different objects of the event array and stores them to seperate variables
+  // for loop to create a card for each movie
   for (var i = 0; i < filmsArray.length; i++) {
+    // takes the different objects of the event array and stores them to seperate variables
     var filmTitle = filmsArray[i].film_name;
     var filmID = filmsArray[i].film_id;
     var filmInfo = filmsArray[i].synopsis_long;
     var filmPoster = filmsArray[i].images.poster[1].medium.film_image;
     var filmTrailer = filmsArray[i].film_trailer;
-    var filmIMDB = filmsArray[i].imdb_id;
+    // var filmIMDB = filmsArray[i].imdb_id;
     var filmRating = filmsArray[i].age_rating[0].rating;
     var filmRatingImage = filmsArray[i].age_rating[0].age_rating_image;
     var filmRatingAdvisory = filmsArray[i].age_rating[0].age_advisory;
@@ -72,10 +77,10 @@ function buildFilmsList(filmsArray) {
   }
 }
 
+// function to build a movie card and append it to the DOM
 function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer, filmRating, filmRatingImage, filmRatingAdvisory) {
 
-  // var filmColumns = $('<div>');
-  // filmColumns.addClass('columns is-mobile is-multiline is-centered');
+  // use the example in the html code to follow how it builds this list. 
   var filmColumn = $('<div>');
   filmColumn.addClass('column is-narrow');
   var cardDiv = $('<div>');
@@ -121,6 +126,7 @@ function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer, fil
 
   filmColumn.appendTo(movies);
 
+  //event listener for the movie poster to get location and get showtimes for that specific movie
   $('#' + filmID + 'poster').on("click", function () {
     console.log("movies display");
     $("#movies").hide();
@@ -128,22 +134,26 @@ function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer, fil
     getCurrentPos(filmID);
   });
 
+  //event listener for the synopsis for that specific movie
   $('#' + filmID + 'info').on("click", function () {
     modal(filmTitle, filmInfo);
   });
 
+  //event listener for the rating explanation for that specific movie
   $('#' + filmID + 'rating').on("click", function () {
     modal('Rated ' + filmRating, filmRatingAdvisory, false, 'Close');
   });
 
 }
 
+// function to get the current location of user, uses GPS if on a mobile device
 function getCurrentPos(filmID) {
 
   currentLatitude = 0;
   curentLongitude = 0;
   currentLoc = 0;
 
+  // location is stored as a lat & long variable
   function success(position) {
     currentLatitude = position.coords.latitude;
     curentLongitude = position.coords.longitude;
@@ -162,9 +172,8 @@ function getCurrentPos(filmID) {
   }
 }
 
-//filmGlu api to get showtimes for selected film nearby and long/lat
+// movieGlu api to get showtimes for selected film nearby by using the film ID# and long/lat
 function getApi(filmID, currentLoc) {
-  // create todays date and format like in line 129
 
   var cinemas = {
     "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=" + filmID + "&date=" + currentDate + "&n=15",
@@ -192,8 +201,9 @@ function getApi(filmID, currentLoc) {
 };
 
 function buildList(cinemasArray) {
-  // takes the different objects of the event array and stores them to seperate variables
+  // for loop to create a list item for each cinema
   for (var i = 0; i < cinemasArray.length; i++) {
+    // takes the different objects of the event array and stores them to seperate variables
     var cinemaTitle = cinemasArray[i].cinema_name;
     var showtimes = cinemasArray[i].showings.Standard.times;
     var cinemaID = cinemasArray[i].cinema_id;
@@ -201,10 +211,10 @@ function buildList(cinemasArray) {
   }
 }
 
+// function to build a cinema list item and append it to the DOM
 function addListEl(cinemaTitle, showtimes, cinemaID) {
 
-  // create a container for showtime
-
+  // use the example in the html code to follow how it builds this list. 
   var listElNot = $('<div>');
   listElNot.addClass('notification is-primary my-3').appendTo(showtimesDiv);
   var listNavEl = $('<nav>');
@@ -227,9 +237,12 @@ function addListEl(cinemaTitle, showtimes, cinemaID) {
   var listThirdColEl = $('<div>');
   listThirdColEl.addClass('column is-one-third level-right is-flex-wrap-wrap').appendTo(listNavEl);
 
+  var showtimeArray = [];
+  // for loop to create a button for each showtime for each theater
   for (var i = 0; i < showtimes.length; i++) {
-    var showtime = showtimes[i].start_time;
-    showtimeText = moment(showtime, 'HH:mm').format('h:mm a');
+
+    showtimeArray[i] = showtimes[i].start_time;
+    showtimeText = moment(showtimeArray[i], 'HH:mm').format('h:mm a');
     var showtimeButton = $('<button>');
     showtimeButton
       .addClass('button is-link m-1 p-2')
@@ -237,17 +250,20 @@ function addListEl(cinemaTitle, showtimes, cinemaID) {
       .attr('id', cinemaID + 'showtime' + i)
       .appendTo(listThirdColEl);
 
+    //event listener for each specific showtime specific to the cinema
     $('#' + cinemaID + 'showtime' + i).on("click", function () {
+      var showtime = showtimeArray[i];
+      console.log(showtime);
       var showtimeDay = moment().format('YYYY-MM-DD');
       showtime = showtimeDay + 'T' + showtime + ':00-00:00';
-      showtime = moment.utc(showtime, 'YYYY-MM-DD[T]HH:mm[Z]');
+      showtime = moment(showtime).utc(showtime, 'YYYY-MM-DD[T]HH:mm[Z]');
       getCinemaLocation(cinemaID, showtime, cinemaTitle);
     });
   }
 };
 
+// movieGlu api to get the location for that specific cinema
 function getCinemaLocation(cinemaID, showtime, cinemaTitle) {
-  // create todays date and format like in line 129
   var cinema = {
     "url": "https://api-gate2.movieglu.com/cinemaDetails/?cinema_id=" + cinemaID,
     "method": "GET",
@@ -261,6 +277,7 @@ function getCinemaLocation(cinemaID, showtime, cinemaTitle) {
       "device-datetime": currentDateUTC
     },
   };
+  // location is stored as a lat & long variable
   $.ajax(cinema).done(function (response) {
     var directionsLoc = currentLatitude + ',' + curentLongitude;
     var currentLocCinema = curentLongitude + '%2C' + currentLatitude;
@@ -273,7 +290,7 @@ function getCinemaLocation(cinemaID, showtime, cinemaTitle) {
     });
 };
 
-// from and to can either be "lat,lon" or an adress
+// MapBox api to get the driving time in minutes from your current location to the cinema's location
 function getMapData(from, to, showtime, cinemaTitle, directionsLoc) {
 
   var directions = {
@@ -285,50 +302,86 @@ function getMapData(from, to, showtime, cinemaTitle, directionsLoc) {
     var duration = res.routes[0].duration / 60;
     duration = Math.round(duration);
     currentDateUTC = moment.utc(currentDateUTC, 'YYYY-MM-DD[T]HH:mm[Z]');
+    //calculates arrival time by adding the driving time to the current time
     var arrivalTime = moment(currentDateUTC).add(duration, 'minutes');
-    arrivalTime =  moment.utc(arrivalTime, 'YYYY-MM-DD[T]HH:mm[Z]');
+    arrivalTime =  moment(arrivalTime).utc(arrivalTime, 'YYYY-MM-DD[T]HH:mm[Z]');
     console.log('currentDateUTC', currentDateUTC);
     console.log('showtime', showtime);
     console.log('duration', duration);
     console.log('arrivalTime', arrivalTime);
     if (duration > 0) {
+      // if the arrival time is after the movie starts then it will calculate how many minutes you will be late
       if (moment(arrivalTime).isAfter(showtime)) {
         var minutesLate =  moment(arrivalTime).diff(showtime, 'minutes');
         if (minutesLate > 59){
+          //converts the number of mins into hours and minutes if over an hour of time
           var hoursMins = timeConvert(minutesLate);
           console.log('minutesLate', minutesLate);
+          //displays how many minutes you will be late by and gives you a button to get the driving directions in Google maps
           modal('Can you make it?', 'No, you would be ' + hoursMins + 
                 ' late to the movie. Choose another showtime or click below if you still want to go', 
                 'Directions to cinema', directionsLoc, cinemaTitle);
+          duration = 0;
+          arrivalTime = '';
+          minutesLate = 0;
+          hoursMins = '';
+          showtime = '';
         } else if (minutesLate < 60){
+          //displays how many minutes you will be late by and gives you a button to get the driving directions in Google maps
           console.log('minutesLate', minutesLate);
           modal('Can you make it?', 'No, you would be ' + minutesLate + 
                 ' minutes late to the movie. Choose another showtime or click below if you still want to go', 
                 'Directions to cinema', directionsLoc, cinemaTitle);
+          duration = 0;
+          arrivalTime = '';
+          minutesLate = 0;  
+          showtime = '';  
         } else if (minutesLate === 1){
+          //displays how many minutes you will be late by and gives you a button to get the driving directions in Google maps
           console.log('minutesLate', minutesLate);
           modal('Can you make it?', 'No, you would be ' + minutesLate + 
                 ' minute late to the movie. Choose another showtime or click below if you still want to go', 
                 'Directions to cinema', directionsLoc, cinemaTitle);
+          duration = 0;
+          arrivalTime = '';
+          minutesLate = 0;
+          showtime = '';
         }
       } else {
         var minutesEarly =  moment(showtime).diff(arrivalTime, 'minutes');
         if (minutesEarly > 59){
+          //converts the number of mins into hours and minutes if over an hour of time
           var hoursMins = timeConvert(minutesEarly);
           console.log('minutesEarly', minutesEarly);
+          //displays how many minutes you will be early and gives you a button to get the driving directions in Google maps
           modal('Can you make it?', 'Yes, you will be ' + hoursMins + 
                 ' early to the movie.', 
                 'Directions to cinema', directionsLoc, cinemaTitle);
+          duration = 0;
+          arrivalTime = '';
+          minutesEarly = 0;
+          hoursMins = ''; 
+          showtime = '';
         } else if (minutesEarly < 60){
           console.log('minutesEarly', minutesEarly);
+          //displays how many minutes you will be early and gives you a button to get the driving directions in Google maps
           modal('Can you make it?', 'Yes, you will be ' + minutesEarly + 
                 ' minutes early to the movie.', 
                 'Directions to cinema', directionsLoc, cinemaTitle);
+          duration = 0;
+          arrivalTime = '';
+          minutesEarly = 0;
+          showtime = '';
         } else if (minutesEarly === 1){
           console.log('minutesEarly', minutesEarly);
+          //displays how many minutes you will be early and gives you a button to get the driving directions in Google maps
           modal('Can you make it?', 'Yes, you will be ' + minutesEarly + 
                 ' minute early to the movie.', 
                 'Directions to cinema', directionsLoc, cinemaTitle);
+          duration = 0;
+          arrivalTime = '';
+          minutesEarly = 0;
+          showtime = '';
         }
       }
     }
@@ -338,6 +391,7 @@ function getMapData(from, to, showtime, cinemaTitle, directionsLoc) {
   });
 }
 
+//converts a number of mins into hours and minutes if over an hour of time
 function timeConvert(n) {
   var num = n;
   var hours = (num / 60);
@@ -350,6 +404,8 @@ function timeConvert(n) {
     return rhours + " hours and " + rminutes + " minute";
   } else if (rhours === 1 && rminutes === 1){
     return rhours + " hour and " + rminutes + " minute";
+  } else if (rhours === 1 && rminutes > 1){
+    return rhours + " hour and " + rminutes + " minutes";
   } else if (rhours > 1 && rminutes === 0){
     return rhours + " hours";
   } else if (rhours === 1 && rminutes === 0){
@@ -406,6 +462,7 @@ function toggleModal() {
   }
 }
 
+// Event listener to start application
 var filmsLoaded = false;
 document.querySelector("#get-films").addEventListener("click", function () {
   moviesEl = $("#movies");

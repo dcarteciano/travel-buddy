@@ -1,3 +1,5 @@
+//   We used this file to test the APIs without distrurbing the other code
+
 // var filmsNowShowing = {
 //   "url": "https://api-gate2.movieglu.com/filmsNowShowing/?n=25",
 //   "method": "GET",
@@ -19,7 +21,8 @@
 // var filmShowtimes = {
 //   "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=315323&date=2021-12-10&n=25",
 //   "method": "GET",
-//   "timeout": 0,
+
+// "timeout": 0,
 //   "headers": {
 //     "geolocation": "40.4896;-111.9400",
 //     "api-version": "v200",

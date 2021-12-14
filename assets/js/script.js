@@ -5,10 +5,9 @@ var showtimesDiv = document.querySelector('#showtimes');
 var currentLatitude;
 var curentLongitude;
 var currentLoc;
-var currentDateUTC = moment().format();
-var currentDate = moment().format('YYYY-MM-DD');
-var filmsDate;
-
+var testLoc = "-24.6403311;15.7257575";
+var testLat = "-24.6403311";
+var testLon = "15.7257575";
 // last modal input, if value is needed elsewhere it should be stored in a separate var as a new input in modal will overwrite the var
 var modelInput;
 
@@ -22,22 +21,47 @@ var darrylApiKey = "";
 var darrylAuth = "";
 
 var taylorClient = "UOFU";
-var taylorApiKey = "EqH5eeXVDL5kz6Lnjuw5k3OXpx4JqAng4xCiay4l";
-var taylorAuth = "Basic VU9GVTo0SFJrWTNQVlMzcTY=";
+var taylorApiKey = "JjkHB9C9rW2oJuka5ojv35B4hTnfSBrZ6daS5rwx";
+var taylorAuth = "Basic VU9GVV9YWDpLM3hEWm02b2FhTlA=";
+
+// Everything needed for date and times
+var timeInfo = {
+  time: {
+    // returns local time as obj
+    now: function () {
+      var now = moment();
+      return now;
+    },
+    // returns utc time as formated string
+    nowUTC: function () {
+      var nowUTC = moment.utc().format();
+      return nowUTC
+    },
+    // returns the amount of time in minutes between two moment objects
+    between: function (startTime, endTime) {
+      var time = endTime.diff(startTime);
+      return time / 1000 / 60;
+    }
+  },
+  // todays day in local time (will not be incorrect day if late evening)
+  today: moment().format("YYYY, MM, DD")
+}
+
+var filmsDate;
 
 // First movieGlu api to get a list of movies that are currently playing in theaters
 function getFilms() {
   var films = {
-    "url": "https://api-gate2.movieglu.com/filmsNowShowing/?n=15",
+    "url": "https://api-gate2.movieglu.com/filmsNowShowing/?n=25",
     "method": "GET",
     "timeout": 0,
     "headers": {
       "api-version": "v200",
-      "client": johnClient,
-      "x-api-key": johnApiKey,
-      "authorization": johnAuth,
-      "territory": "US",
-      "device-datetime": currentDateUTC
+      "client": taylorClient,
+      "x-api-key": taylorApiKey,
+      "authorization": taylorAuth,
+      "territory": "XX",
+      "device-datetime": timeInfo.time.nowUTC()
     },
   };
   $.ajax(films)
@@ -55,7 +79,7 @@ function getFilms() {
 
 // function that stores the filmsArray into localstorage
 function storeFilmsArray(filmsArray) {
-  filmsDate = moment();
+  filmsDate = timeInfo.today;
   localStorage.setItem('filmsArray', JSON.stringify(filmsArray));
   localStorage.setItem('filmsDate', JSON.stringify(filmsDate));
 }
@@ -128,7 +152,6 @@ function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer, fil
 
   //event listener for the movie poster to get location and get showtimes for that specific movie
   $('#' + filmID + 'poster').on("click", function () {
-    console.log("movies display");
     $("#movies").hide();
     movies = '';
     getCurrentPos(filmID);
@@ -148,45 +171,47 @@ function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer, fil
 
 // function to get the current location of user, uses GPS if on a mobile device
 function getCurrentPos(filmID) {
+  // for testing
+  getApi(filmID, testLoc);
+  // currentLatitude = 0;
+  // curentLongitude = 0;
+  // currentLoc = 0;
 
-  currentLatitude = 0;
-  curentLongitude = 0;
-  currentLoc = 0;
+  // // location is stored as a lat & long variable
+  // function success(position) {
+  //   currentLatitude = position.coords.latitude;
+  //   curentLongitude = position.coords.longitude;
+  //   currentLoc = currentLatitude + ";" + curentLongitude;
+  //   getApi(filmID, currentLoc);
+  // }
 
-  // location is stored as a lat & long variable
-  function success(position) {
-    currentLatitude = position.coords.latitude;
-    curentLongitude = position.coords.longitude;
-    currentLoc = currentLatitude + ";" + curentLongitude;
-    getApi(filmID, currentLoc);
-  }
+  // function error() {
+  //   modal('Error', 'Unable to retrieve your location');
+  // }
 
-  function error() {
-    modal('Error', 'Unable to retrieve your location');
-  }
-
-  if (!navigator.geolocation) {
-    modal('Error', 'Geolocation is not supported by your browser');
-  } else {
-    navigator.geolocation.getCurrentPosition(success, error);
-  }
+  // if (!navigator.geolocation) {
+  //   modal('Error', 'Geolocation is not supported by your browser');
+  // } else {
+  //   navigator.geolocation.getCurrentPosition(success, error);
+  // }
 }
 
 // movieGlu api to get showtimes for selected film nearby by using the film ID# and long/lat
 function getApi(filmID, currentLoc) {
 
+  var dateFormated = moment(timeInfo.today, "YYYY,MM,DD").format("YYYY-MM-DD");
   var cinemas = {
-    "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=" + filmID + "&date=" + currentDate + "&n=15",
+    "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=" + filmID + "&date=" + dateFormated + "&n=15",
     "method": "GET",
     "timeout": 0,
     "headers": {
-      "client": johnClient,
-      "x-api-key": johnApiKey,
-      "authorization": johnAuth,
-      "territory": "US",
+      "client": taylorClient,
+      "x-api-key": taylorApiKey,
+      "authorization": taylorAuth,
+      "territory": "XX",
       "api-version": "v200",
       "geolocation": currentLoc,
-      "device-datetime": currentDateUTC
+      "device-datetime": timeInfo.time.nowUTC()
     },
   };
   $.ajax(cinemas)
@@ -237,12 +262,11 @@ function addListEl(cinemaTitle, showtimes, cinemaID) {
   var listThirdColEl = $('<div>');
   listThirdColEl.addClass('column is-one-third level-right is-flex-wrap-wrap').appendTo(listNavEl);
 
-  
+
   // for loop to create a button for each showtime for each theater
   for (var i = 0; i < showtimes.length; i++) {
-
+    // for html
     var showtime = showtimes[i].start_time;
-    console.log(showtime);
     showtimeText = moment(showtime, 'HH:mm').format('h:mm a');
     var showtimeButton = $('<button>');
     showtimeButton
@@ -253,10 +277,16 @@ function addListEl(cinemaTitle, showtimes, cinemaID) {
 
     //event listener for each specific showtime specific to the cinema
     $('#' + cinemaID + 'showtime' + i).on("click", function () {
-      console.log(showtime);
-      var showtimeDay = moment().format('YYYY-MM-DD');
-      showtime = showtimeDay + 'T' + showtime;
-      showtime = moment(showtime).utc(showtime, 'YYYY-MM-DD[T]HH:mm[Z]');
+      var btnText = $(this).text();
+      console.log(btnText);
+      var btnTextSplit = btnText.split(" ");
+      var timeSplit = btnTextSplit[0].split(":");
+      if (btnTextSplit[1] === "pm") {
+        timeSplit[0] = parseFloat(timeSplit[0]) + 12;
+      }
+      console.log(timeSplit);
+      newDate = new Date(timeInfo.today);
+      showtime = moment(newDate).add(timeSplit[0], "hours").add(timeSplit[1], "minutes");
       getCinemaLocation(cinemaID, showtime, cinemaTitle);
     });
   }
@@ -269,22 +299,24 @@ function getCinemaLocation(cinemaID, showtime, cinemaTitle) {
     "method": "GET",
     "timeout": 0,
     "headers": {
-      "client": johnClient,
-      "x-api-key": johnApiKey,
-      "authorization": johnAuth,
-      "territory": "US",
+      "client": taylorClient,
+      "x-api-key": taylorApiKey,
+      "authorization": taylorAuth,
+      "territory": "XX",
       "api-version": "v200",
-      "device-datetime": currentDateUTC
+      "device-datetime": timeInfo.time.nowUTC()
     },
   };
   // location is stored as a lat & long variable
   $.ajax(cinema).done(function (response) {
-    var directionsLoc = currentLatitude + ',' + curentLongitude;
-    var currentLocCinema = curentLongitude + '%2C' + currentLatitude;
+    // var directionsLoc = currentLatitude + ',' + curentLongitude;
+    // var currentLocCinema = curentLongitude + '%2C' + currentLatitude;
+    var directionsLoc = testLat + ',' + testLon;
+    var currentLocCinema = testLon + '%2C' + testLat;
     var cinemaLoc = response.lng + '%2C' + response.lat;
     getMapData(currentLocCinema, cinemaLoc, showtime, cinemaTitle, directionsLoc);
 
-    })
+  })
     .fail(function () {
       modal("Error", "We had trouble retrieving data from movieglu.com");
     });
@@ -294,90 +326,88 @@ function getCinemaLocation(cinemaID, showtime, cinemaTitle) {
 function getMapData(from, to, showtime, cinemaTitle, directionsLoc) {
 
   var directions = {
-    'url': 'https://api.mapbox.com/directions/v5/mapbox/driving/' + from + '%3B'+ to + 
-    '?alternatives=true&geometries=geojson&language=en&overview=simplified&steps=true&access_token=pk.eyJ1Ijoiam9obmRhdmlzOTI3OTAiLCJhIjoiY2t4NDZlNWJ5MjVoYjJucW9kcm5jdGQxZyJ9.1CTxHYCYILbYZTJvrvtwqw'
-    };
-  
+    'url': 'https://api.mapbox.com/directions/v5/mapbox/driving/' + from + '%3B' + to +
+      '?alternatives=true&geometries=geojson&language=en&overview=simplified&steps=true&access_token=pk.eyJ1Ijoiam9obmRhdmlzOTI3OTAiLCJhIjoiY2t4NDZlNWJ5MjVoYjJucW9kcm5jdGQxZyJ9.1CTxHYCYILbYZTJvrvtwqw'
+  };
+
   $.ajax(directions).done(function (res) {
-    var duration = res.routes[0].duration / 60;
+    var duration = res.routes[0].duration / 60; // in minutes
     duration = Math.round(duration);
-    currentDateUTC = moment.utc(currentDateUTC, 'YYYY-MM-DD[T]HH:mm[Z]');
     //calculates arrival time by adding the driving time to the current time
-    var arrivalTime = moment(currentDateUTC).add(duration, 'minutes');
-    arrivalTime =  moment(arrivalTime).utc(arrivalTime, 'YYYY-MM-DD[T]HH:mm[Z]');
-    console.log('currentDateUTC', currentDateUTC);
-    console.log('showtime', showtime);
-    console.log('duration', duration);
-    console.log('arrivalTime', arrivalTime);
+    var arrivalTime = timeInfo.time.now().add(duration, "minutes");
+    console.log('Show Time:', showtime.format());
+    console.log('Drive Time:', duration);
+    console.log('Arrive At:', arrivalTime);
     if (duration > 0) {
       // if the arrival time is after the movie starts then it will calculate how many minutes you will be late
-      if (moment(arrivalTime).isAfter(showtime)) {
-        var minutesLate =  moment(arrivalTime).diff(showtime, 'minutes');
-        if (minutesLate > 59){
+      if (arrivalTime.isAfter(showtime)) {
+        var minutesLate = timeInfo.time.between(showtime, arrivalTime);
+        console.log("Minutes Late: " + minutesLate);
+        if (minutesLate > 59) {
           //converts the number of mins into hours and minutes if over an hour of time
           var hoursMins = timeConvert(minutesLate);
           console.log('minutesLate', minutesLate);
           //displays how many minutes you will be late by and gives you a button to get the driving directions in Google maps
-          modal('Can we make it?', 'No, you would be ' + hoursMins + 
-                ' late to the movie. Choose another showtime or click below if you still want to go', 
-                'Directions to cinema', directionsLoc, cinemaTitle);
+          modal('Can we make it?', 'No, you would be ' + hoursMins +
+            ' late to the movie. Choose another showtime or click below if you still want to go',
+            'Directions to cinema', directionsLoc, cinemaTitle);
           duration = 0;
           arrivalTime = '';
           minutesLate = 0;
           hoursMins = '';
           showtime = '';
-        } else if (minutesLate < 60){
+        } else if (minutesLate < 60) {
           //displays how many minutes you will be late by and gives you a button to get the driving directions in Google maps
           console.log('minutesLate', minutesLate);
-          modal('Can we make it?', 'No, you would be ' + minutesLate + 
-                ' minutes late to the movie. Choose another showtime or click below if you still want to go', 
-                'Directions to cinema', directionsLoc, cinemaTitle);
+          modal('Can we make it?', 'No, you would be ' + minutesLate +
+            ' minutes late to the movie. Choose another showtime or click below if you still want to go',
+            'Directions to cinema', directionsLoc, cinemaTitle);
           duration = 0;
           arrivalTime = '';
-          minutesLate = 0;  
-          showtime = '';  
-        } else if (minutesLate === 1){
+          minutesLate = 0;
+          showtime = '';
+        } else if (minutesLate === 1) {
           //displays how many minutes you will be late by and gives you a button to get the driving directions in Google maps
           console.log('minutesLate', minutesLate);
-          modal('Can we make it?', 'No, you would be ' + minutesLate + 
-                ' minute late to the movie. Choose another showtime or click below if you still want to go', 
-                'Directions to cinema', directionsLoc, cinemaTitle);
+          modal('Can we make it?', 'No, you would be ' + minutesLate +
+            ' minute late to the movie. Choose another showtime or click below if you still want to go',
+            'Directions to cinema', directionsLoc, cinemaTitle);
           duration = 0;
           arrivalTime = '';
           minutesLate = 0;
           showtime = '';
         }
       } else {
-        var minutesEarly =  moment(showtime).diff(arrivalTime, 'minutes');
-        if (minutesEarly > 59){
+        var minutesEarly = timeInfo.time.between(arrivalTime, showtime);
+        if (minutesEarly > 59) {
           //converts the number of mins into hours and minutes if over an hour of time
           var hoursMins = timeConvert(minutesEarly);
           console.log('minutesEarly', minutesEarly);
           //displays how many minutes you will be early and gives you a button to get the driving directions in Google maps
-          modal('Can we make it?', 'Yes, you will be ' + hoursMins + 
-                ' early to the movie.', 
-                'Directions to cinema', directionsLoc, cinemaTitle);
+          modal('Can we make it?', 'Yes, you will be ' + hoursMins +
+            ' early to the movie.',
+            'Directions to cinema', directionsLoc, cinemaTitle);
           duration = 0;
           arrivalTime = '';
           minutesEarly = 0;
-          hoursMins = ''; 
+          hoursMins = '';
           showtime = '';
-        } else if (minutesEarly < 60){
+        } else if (minutesEarly < 60) {
           console.log('minutesEarly', minutesEarly);
           //displays how many minutes you will be early and gives you a button to get the driving directions in Google maps
-          modal('Can we make it?', 'Yes, you will be ' + minutesEarly + 
-                ' minutes early to the movie.', 
-                'Directions to cinema', directionsLoc, cinemaTitle);
+          modal('Can we make it?', 'Yes, you will be ' + minutesEarly +
+            ' minutes early to the movie.',
+            'Directions to cinema', directionsLoc, cinemaTitle);
           duration = 0;
           arrivalTime = '';
           minutesEarly = 0;
           showtime = '';
-        } else if (minutesEarly === 1){
+        } else if (minutesEarly === 1) {
           console.log('minutesEarly', minutesEarly);
           //displays how many minutes you will be early and gives you a button to get the driving directions in Google maps
-          modal('Can we make it?', 'Yes, you will be ' + minutesEarly + 
-                ' minute early to the movie.', 
-                'Directions to cinema', directionsLoc, cinemaTitle);
+          modal('Can we make it?', 'Yes, you will be ' + minutesEarly +
+            ' minute early to the movie.',
+            'Directions to cinema', directionsLoc, cinemaTitle);
           duration = 0;
           arrivalTime = '';
           minutesEarly = 0;
@@ -398,17 +428,17 @@ function timeConvert(n) {
   var rhours = Math.floor(hours);
   var minutes = (hours - rhours) * 60;
   var rminutes = Math.round(minutes);
-  if (rhours > 1 && rminutes > 1){
+  if (rhours > 1 && rminutes > 1) {
     return rhours + " hours and " + rminutes + " minutes";
-  } else if (rhours > 1 && rminutes === 1){
+  } else if (rhours > 1 && rminutes === 1) {
     return rhours + " hours and " + rminutes + " minute";
-  } else if (rhours === 1 && rminutes === 1){
+  } else if (rhours === 1 && rminutes === 1) {
     return rhours + " hour and " + rminutes + " minute";
-  } else if (rhours === 1 && rminutes > 1){
+  } else if (rhours === 1 && rminutes > 1) {
     return rhours + " hour and " + rminutes + " minutes";
-  } else if (rhours > 1 && rminutes === 0){
+  } else if (rhours > 1 && rminutes === 0) {
     return rhours + " hours";
-  } else if (rhours === 1 && rminutes === 0){
+  } else if (rhours === 1 && rminutes === 0) {
     return rhours + " hour";
   }
 }
@@ -436,11 +466,11 @@ function modal(title, info, btnText, from, cinemaTitle) {
     var titleFixed = cinemaTitle.split(' ').join('+');
     var modalFootEl = $("<footer>").addClass("modal-card-foot")
     var modalBtn = $("<a>")
-    .addClass("button is-success")
-    .attr("id", "modal-button")
-    .text(btnText)
-    .attr('href', 'https://www.google.com/maps/dir/' + from + '/' + titleFixed)
-    .attr('target', '_blank')
+      .addClass("button is-success")
+      .attr("id", "modal-button")
+      .text(btnText)
+      .attr('href', 'https://www.google.com/maps/dir/' + from + '/' + titleFixed)
+      .attr('target', '_blank')
     modalFootEl.append(modalBtn);
     modalContentEl.append(modalFootEl);
   }
@@ -476,7 +506,7 @@ document.querySelector("#get-films").addEventListener("click", function () {
     if (filmsArray && filmsDate) {
       filmsDate = JSON.parse(filmsDate);
       // checks if todays date matches the stored date
-      if (moment(filmsDate).date() === moment().date()) {
+      if (filmsDate === timeInfo.today) {
         console.log("using stored list");
         filmsArray = JSON.parse(filmsArray); // parse the string into an Array
         filmsLoaded = true; // next time this button is clicked it will toggle the movies list

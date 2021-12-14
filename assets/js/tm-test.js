@@ -50,3 +50,45 @@
 // $.ajax(directions).done(function (res) {
 //   console.log(res);
 // });
+
+var obj = {
+    times:
+    {
+        pageLoad: moment(),
+        pageLoadUTC: moment.utc(),
+        now: function () {
+            var now = moment();
+            return now;
+        },
+        nowUTC: function () {
+            var nowUTC = moment.utc();
+            return nowUTC;
+        }
+    },
+    dates:
+    {
+        today: moment().format('YYYY, MM, DD')
+    }
+}
+
+now = obj.times.now();
+nowUTC = obj.times.nowUTC();
+console.log("Now: ", now, "Now UTC: ", nowUTC, "Date: ", obj.dates.today);
+
+var testTime = moment().add(3, "hours");
+console.log("Test Time: ", testTime);
+var duration = moment.duration(testTime.diff(obj.times.now()));
+console.log("Duration", duration);
+console.log("Difference", (obj.times.now().diff(testTime)) / 1000 / 60 / 60);
+var arrivalTime = obj.times.now().add(600, "seconds");
+console.log(arrivalTime);
+var newDate = new Date(obj.dates.today)
+var time = "7:30 pm"
+var split = time.split(" ");
+var timeSplit = split[0].split(":");
+if (split[1] === "pm") {
+    timeSplit[0] = parseFloat(timeSplit[0]) + 12;
+}
+console.log("time split:", timeSplit);
+var timeObj = moment(newDate).add(timeSplit[0], "hours").add(timeSplit[1], "minutes");
+console.log(timeObj.format());

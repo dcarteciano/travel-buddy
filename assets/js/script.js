@@ -237,12 +237,13 @@ function addListEl(cinemaTitle, showtimes, cinemaID) {
   var listThirdColEl = $('<div>');
   listThirdColEl.addClass('column is-one-third level-right is-flex-wrap-wrap').appendTo(listNavEl);
 
-  var showtimeArray = [];
+  
   // for loop to create a button for each showtime for each theater
   for (var i = 0; i < showtimes.length; i++) {
 
-    showtimeArray[i] = showtimes[i].start_time;
-    showtimeText = moment(showtimeArray[i], 'HH:mm').format('h:mm a');
+    var showtime = showtimes[i].start_time;
+    console.log(showtime);
+    showtimeText = moment(showtime, 'HH:mm').format('h:mm a');
     var showtimeButton = $('<button>');
     showtimeButton
       .addClass('button is-link m-1 p-2')
@@ -252,10 +253,9 @@ function addListEl(cinemaTitle, showtimes, cinemaID) {
 
     //event listener for each specific showtime specific to the cinema
     $('#' + cinemaID + 'showtime' + i).on("click", function () {
-      var showtime = showtimeArray[i];
       console.log(showtime);
       var showtimeDay = moment().format('YYYY-MM-DD');
-      showtime = showtimeDay + 'T' + showtime + ':00-00:00';
+      showtime = showtimeDay + 'T' + showtime;
       showtime = moment(showtime).utc(showtime, 'YYYY-MM-DD[T]HH:mm[Z]');
       getCinemaLocation(cinemaID, showtime, cinemaTitle);
     });

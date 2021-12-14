@@ -20,9 +20,10 @@ var darrylClient = "";
 var darrylApiKey = "";
 var darrylAuth = "";
 
-var taylorClient = "UOFU";
-var taylorApiKey = "JjkHB9C9rW2oJuka5ojv35B4hTnfSBrZ6daS5rwx";
-var taylorAuth = "Basic VU9GVV9YWDpLM3hEWm02b2FhTlA=";
+//sandbox api info
+var testClient = "UOFU";
+var testApiKey = "JjkHB9C9rW2oJuka5ojv35B4hTnfSBrZ6daS5rwx";
+var testAuth = "Basic VU9GVV9YWDpLM3hEWm02b2FhTlA=";
 
 // Everything needed for date and times
 var timeInfo = {
@@ -57,9 +58,9 @@ function getFilms() {
     "timeout": 0,
     "headers": {
       "api-version": "v200",
-      "client": taylorClient,
-      "x-api-key": taylorApiKey,
-      "authorization": taylorAuth,
+      "client": testClient,
+      "x-api-key": testApiKey,
+      "authorization": testAuth,
       "territory": "XX",
       "device-datetime": timeInfo.time.nowUTC()
     },
@@ -173,6 +174,9 @@ function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer, fil
 function getCurrentPos(filmID) {
   // for testing
   getApi(filmID, testLoc);
+
+  // Normal Functionallity gets user location
+
   // currentLatitude = 0;
   // curentLongitude = 0;
   // currentLoc = 0;
@@ -205,9 +209,9 @@ function getApi(filmID, currentLoc) {
     "method": "GET",
     "timeout": 0,
     "headers": {
-      "client": taylorClient,
-      "x-api-key": taylorApiKey,
-      "authorization": taylorAuth,
+      "client": testClient,
+      "x-api-key": testApiKey,
+      "authorization": testAuth,
       "territory": "XX",
       "api-version": "v200",
       "geolocation": currentLoc,
@@ -277,16 +281,20 @@ function addListEl(cinemaTitle, showtimes, cinemaID) {
 
     //event listener for each specific showtime specific to the cinema
     $('#' + cinemaID + 'showtime' + i).on("click", function () {
+      // Gets text on button and converts it to usable data
       var btnText = $(this).text();
-      console.log(btnText);
       var btnTextSplit = btnText.split(" ");
       var timeSplit = btnTextSplit[0].split(":");
+
+      // uses text on button for show time
       if (btnTextSplit[1] === "pm") {
+        // changes to 24 hour format
         timeSplit[0] = parseFloat(timeSplit[0]) + 12;
       }
-      console.log(timeSplit);
+      // creates new showtime obj
       newDate = new Date(timeInfo.today);
       showtime = moment(newDate).add(timeSplit[0], "hours").add(timeSplit[1], "minutes");
+      
       getCinemaLocation(cinemaID, showtime, cinemaTitle);
     });
   }
@@ -299,9 +307,9 @@ function getCinemaLocation(cinemaID, showtime, cinemaTitle) {
     "method": "GET",
     "timeout": 0,
     "headers": {
-      "client": taylorClient,
-      "x-api-key": taylorApiKey,
-      "authorization": taylorAuth,
+      "client": testClient,
+      "x-api-key": testApiKey,
+      "authorization": testAuth,
       "territory": "XX",
       "api-version": "v200",
       "device-datetime": timeInfo.time.nowUTC()
@@ -309,10 +317,15 @@ function getCinemaLocation(cinemaID, showtime, cinemaTitle) {
   };
   // location is stored as a lat & long variable
   $.ajax(cinema).done(function (response) {
+    //Normal Functionality uses userlocation
+
     // var directionsLoc = currentLatitude + ',' + curentLongitude;
     // var currentLocCinema = curentLongitude + '%2C' + currentLatitude;
+
+    // Test Location
     var directionsLoc = testLat + ',' + testLon;
     var currentLocCinema = testLon + '%2C' + testLat;
+
     var cinemaLoc = response.lng + '%2C' + response.lat;
     getMapData(currentLocCinema, cinemaLoc, showtime, cinemaTitle, directionsLoc);
 

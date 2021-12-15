@@ -28,7 +28,7 @@ You can always exit a modal and click the Get Movies button to go back to the li
 
 Follow the following link to load code into a browser.
 
-[Can We Make it?]()
+[Can We Make it?](https://dcarteciano.github.io/travel-buddy/)
 
 ## Usage
 

@@ -16,9 +16,9 @@ var johnClient = "BYU";
 var johnApiKey = "jKtK0wCFgQ617lSilFMPfYtV3ZUcbji6qaMn3ang";
 var johnAuth = "Basic QllVOkxZOFlieUJLWjM3Zg==";
 
-var darrylClient = "";
-var darrylApiKey = "";
-var darrylAuth = "";
+var darrylClient = "Test_69";
+var darrylApiKey = "UOeJVSvnvf3RYMXnsjBIWbaAh8mUWvPEwHthuJa0";
+var darrylAuth = "Basic VEVTVF82OTo2dENmUVBPcWtrMnk=";
 
 var taylorClient = "UOFU";
 var taylorApiKey = "JjkHB9C9rW2oJuka5ojv35B4hTnfSBrZ6daS5rwx";
@@ -57,10 +57,10 @@ function getFilms() {
     "timeout": 0,
     "headers": {
       "api-version": "v200",
-      "client": taylorClient,
-      "x-api-key": taylorApiKey,
-      "authorization": taylorAuth,
-      "territory": "XX",
+      "client": darrylClient,
+      "x-api-key": darrylApiKey,
+      "authorization": darrylAuth,
+      "territory": "US",
       "device-datetime": timeInfo.time.nowUTC()
     },
   };
@@ -205,10 +205,10 @@ function getApi(filmID, currentLoc) {
     "method": "GET",
     "timeout": 0,
     "headers": {
-      "client": taylorClient,
-      "x-api-key": taylorApiKey,
-      "authorization": taylorAuth,
-      "territory": "XX",
+      "client": darrylClient,
+      "x-api-key": darrylApiKey,
+      "authorization": darrylAuth,
+      "territory": "US",
       "api-version": "v200",
       "geolocation": currentLoc,
       "device-datetime": timeInfo.time.nowUTC()
@@ -220,7 +220,8 @@ function getApi(filmID, currentLoc) {
       console.log('cinemasArray', cinemasArray);
       buildList(cinemasArray);
     })
-    .fail(function () {
+    .fail(function (textStatus,errorThrown) {
+      console.log(textStatus);
       modal("Error", "We had trouble retrieving data from movieglu.com");
     })
 };
@@ -299,10 +300,10 @@ function getCinemaLocation(cinemaID, showtime, cinemaTitle) {
     "method": "GET",
     "timeout": 0,
     "headers": {
-      "client": taylorClient,
-      "x-api-key": taylorApiKey,
-      "authorization": taylorAuth,
-      "territory": "XX",
+      "client": darrylClient,
+      "x-api-key": darrylApiKey,
+      "authorization": darrylAuth,
+      "territory": "US",
       "api-version": "v200",
       "device-datetime": timeInfo.time.nowUTC()
     },

@@ -126,7 +126,7 @@ function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer, fil
     .text(filmTitle)
     .appendTo(cardContentDiv);
   var cardIconSpan = $('<span>');
-  cardIconSpan.addClass('icon').appendTo(cardTitle);
+  cardIconSpan.addClass('icon has-text-info').appendTo(cardTitle);
   var cardIcon = $('<i>');
   cardIcon.addClass('fas fa-info-circle')
     .attr('id', filmID + 'info')
@@ -204,7 +204,7 @@ function getApi(filmID, currentLoc) {
 
   var dateFormated = moment(timeInfo.today, "YYYY,MM,DD").format("YYYY-MM-DD");
   var cinemas = {
-    "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=" + filmID + "&date=" + moment.format() + "&n=15",
+    "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=" + filmID + "&date=2021+12+15&n=15",
     "method": "GET",
     "timeout": 0,
     "headers": {

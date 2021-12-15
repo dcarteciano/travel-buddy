@@ -20,9 +20,10 @@ var darrylClient = "Test_69";
 var darrylApiKey = "UOeJVSvnvf3RYMXnsjBIWbaAh8mUWvPEwHthuJa0";
 var darrylAuth = "Basic VEVTVF82OTo2dENmUVBPcWtrMnk=";
 
-var taylorClient = "UOFU";
-var taylorApiKey = "JjkHB9C9rW2oJuka5ojv35B4hTnfSBrZ6daS5rwx";
-var taylorAuth = "Basic VU9GVV9YWDpLM3hEWm02b2FhTlA=";
+//sandbox api info
+var testClient = "UOFU";
+var testApiKey = "JjkHB9C9rW2oJuka5ojv35B4hTnfSBrZ6daS5rwx";
+var testAuth = "Basic VU9GVV9YWDpLM3hEWm02b2FhTlA=";
 
 // Everything needed for date and times
 var timeInfo = {
@@ -172,28 +173,30 @@ function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer, fil
 // function to get the current location of user, uses GPS if on a mobile device
 function getCurrentPos(filmID) {
   // for testing
-  getApi(filmID, testLoc);
-  // currentLatitude = 0;
-  // curentLongitude = 0;
-  // currentLoc = 0;
+  // getApi(filmID, testLoc);
 
-  // // location is stored as a lat & long variable
-  // function success(position) {
-  //   currentLatitude = position.coords.latitude;
-  //   curentLongitude = position.coords.longitude;
-  //   currentLoc = currentLatitude + ";" + curentLongitude;
-  //   getApi(filmID, currentLoc);
-  // }
+  // Normal Functionallity gets user location
+  currentLatitude = 0;
+  curentLongitude = 0;
+  currentLoc = 0;
 
-  // function error() {
-  //   modal('Error', 'Unable to retrieve your location');
-  // }
+  // location is stored as a lat & long variable
+  function success(position) {
+    currentLatitude = position.coords.latitude;
+    curentLongitude = position.coords.longitude;
+    currentLoc = currentLatitude + ";" + curentLongitude;
+    getApi(filmID, currentLoc);
+  }
 
-  // if (!navigator.geolocation) {
-  //   modal('Error', 'Geolocation is not supported by your browser');
-  // } else {
-  //   navigator.geolocation.getCurrentPosition(success, error);
-  // }
+  function error() {
+    modal('Error', 'Unable to retrieve your location');
+  }
+
+  if (!navigator.geolocation) {
+    modal('Error', 'Geolocation is not supported by your browser');
+  } else {
+    navigator.geolocation.getCurrentPosition(success, error);
+  }
 }
 
 // movieGlu api to get showtimes for selected film nearby by using the film ID# and long/lat
@@ -220,7 +223,7 @@ function getApi(filmID, currentLoc) {
       console.log('cinemasArray', cinemasArray);
       buildList(cinemasArray);
     })
-    .fail(function (textStatus,errorThrown) {
+    .fail(function (textStatus, errorThrown) {
       console.log(textStatus);
       modal("Error", "We had trouble retrieving data from movieglu.com");
     })
@@ -278,16 +281,20 @@ function addListEl(cinemaTitle, showtimes, cinemaID) {
 
     //event listener for each specific showtime specific to the cinema
     $('#' + cinemaID + 'showtime' + i).on("click", function () {
+      // Gets text on button and converts it to usable data
       var btnText = $(this).text();
-      console.log(btnText);
       var btnTextSplit = btnText.split(" ");
       var timeSplit = btnTextSplit[0].split(":");
+
+      // uses text on button for show time
       if (btnTextSplit[1] === "pm") {
+        // changes to 24 hour format
         timeSplit[0] = parseFloat(timeSplit[0]) + 12;
       }
-      console.log(timeSplit);
+      // creates new showtime obj
       newDate = new Date(timeInfo.today);
       showtime = moment(newDate).add(timeSplit[0], "hours").add(timeSplit[1], "minutes");
+
       getCinemaLocation(cinemaID, showtime, cinemaTitle);
     });
   }
@@ -310,10 +317,15 @@ function getCinemaLocation(cinemaID, showtime, cinemaTitle) {
   };
   // location is stored as a lat & long variable
   $.ajax(cinema).done(function (response) {
-    // var directionsLoc = currentLatitude + ',' + curentLongitude;
-    // var currentLocCinema = curentLongitude + '%2C' + currentLatitude;
-    var directionsLoc = testLat + ',' + testLon;
-    var currentLocCinema = testLon + '%2C' + testLat;
+    //Normal Functionality uses userlocation
+
+    var directionsLoc = currentLatitude + ',' + curentLongitude;
+    var currentLocCinema = curentLongitude + '%2C' + currentLatitude;
+
+    // Test Location
+    // var directionsLoc = testLat + ',' + testLon;
+    // var currentLocCinema = testLon + '%2C' + testLat;
+
     var cinemaLoc = response.lng + '%2C' + response.lat;
     getMapData(currentLocCinema, cinemaLoc, showtime, cinemaTitle, directionsLoc);
 

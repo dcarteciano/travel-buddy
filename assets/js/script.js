@@ -53,7 +53,7 @@ var filmsDate;
 // First movieGlu api to get a list of movies that are currently playing in theaters
 function getFilms() {
   var films = {
-    "url": "https://api-gate2.movieglu.com/filmsNowShowing/?n=25",
+    "url": "https://api-gate2.movieglu.com/filmsNowShowing/?n=15",
     "method": "GET",
     "timeout": 0,
     "headers": {
@@ -74,7 +74,7 @@ function getFilms() {
       storeFilmsArray(filmsArray);
     })
     .fail(function () {
-      modal("Error", "We had trouble retrieving data from movieglu.com");
+      modal("Error", "We had trouble retrieving Movie data from movieglu.com");
     })
 };
 
@@ -173,7 +173,7 @@ function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer, fil
 // function to get the current location of user, uses GPS if on a mobile device
 function getCurrentPos(filmID) {
   // for testing
-  // getApi(filmID, testLoc);
+  //getApi(filmID, testLoc);
 
   // Normal Functionallity gets user location
   currentLatitude = 0;
@@ -204,7 +204,7 @@ function getApi(filmID, currentLoc) {
 
   var dateFormated = moment(timeInfo.today, "YYYY,MM,DD").format("YYYY-MM-DD");
   var cinemas = {
-    "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=" + filmID + "&date=" + dateFormated + "&n=15",
+    "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=" + filmID + "&date=2021-12-15&n=15",
     "method": "GET",
     "timeout": 0,
     "headers": {
@@ -223,9 +223,8 @@ function getApi(filmID, currentLoc) {
       console.log('cinemasArray', cinemasArray);
       buildList(cinemasArray);
     })
-    .fail(function (textStatus, errorThrown) {
-      console.log(textStatus);
-      modal("Error", "We had trouble retrieving data from movieglu.com");
+    .fail(function () {
+      modal("Error", "We had trouble retrieving Showtime data from movieglu.com");
     })
 };
 
@@ -287,7 +286,7 @@ function addListEl(cinemaTitle, showtimes, cinemaID) {
       var timeSplit = btnTextSplit[0].split(":");
 
       // uses text on button for show time
-      if (btnTextSplit[1] === "pm") {
+      if (btnTextSplit[1] === "pm" && timeSplit[0] != "12") {
         // changes to 24 hour format
         timeSplit[0] = parseFloat(timeSplit[0]) + 12;
       }
@@ -331,7 +330,7 @@ function getCinemaLocation(cinemaID, showtime, cinemaTitle) {
 
   })
     .fail(function () {
-      modal("Error", "We had trouble retrieving data from movieglu.com");
+      modal("Error", "We had trouble retrieving Cinema data from movieglu.com");
     });
 };
 

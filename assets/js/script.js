@@ -1,3 +1,9 @@
+//for test env
+// change headers
+// remove getlocation for user location
+// use test lon lat & loc
+//
+
 // Global Variables
 var addButton = document.querySelector('#add-item');
 var movies = document.querySelector('#movies');
@@ -34,9 +40,9 @@ var timeInfo = {
       return now;
     },
     // returns utc time as formated string
-    nowUTC: function () {
-      var nowUTC = moment.utc().format();
-      return nowUTC
+    nowFormatted: function () {
+      var nowFormatted = moment().format();
+      return nowFormatted;
     },
     // returns the amount of time in minutes between two moment objects
     between: function (startTime, endTime) {
@@ -62,7 +68,7 @@ function getFilms() {
       "x-api-key": darrylApiKey,
       "authorization": darrylAuth,
       "territory": "US",
-      "device-datetime": timeInfo.time.nowUTC()
+      "device-datetime": timeInfo.time.nowFormatted()
     },
   };
   $.ajax(films)
@@ -126,10 +132,11 @@ function addMovieCards(filmTitle, filmInfo, filmPoster, filmID, filmTrailer, fil
     .text(filmTitle)
     .appendTo(cardContentDiv);
   var cardIconSpan = $('<span>');
-  cardIconSpan.addClass('icon has-text-info').appendTo(cardTitle);
+  cardIconSpan.addClass('icon has-text-info')
+    .attr('id', filmID + 'info')
+    .appendTo(cardTitle);
   var cardIcon = $('<i>');
   cardIcon.addClass('fas fa-info-circle')
-    .attr('id', filmID + 'info')
     .attr('aria-hidden', 'true')
     .appendTo(cardIconSpan);
   var ratingFigure = $('<figure>');
@@ -204,7 +211,7 @@ function getApi(filmID, currentLoc) {
 
   var dateFormated = moment(timeInfo.today, "YYYY,MM,DD").format("YYYY-MM-DD");
   var cinemas = {
-    "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=" + filmID + "&date=2021+12+15&n=15",
+    "url": "https://api-gate2.movieglu.com/filmShowTimes/?film_id=" + filmID + "&date=" + dateFormated +"&n=15",
     "method": "GET",
     "timeout": 0,
     "headers": {
@@ -214,7 +221,7 @@ function getApi(filmID, currentLoc) {
       "territory": "US",
       "api-version": "v200",
       "geolocation": currentLoc,
-      "device-datetime": timeInfo.time.nowUTC()
+      "device-datetime": timeInfo.time.nowFormatted()
     },
   };
   $.ajax(cinemas)
@@ -311,7 +318,7 @@ function getCinemaLocation(cinemaID, showtime, cinemaTitle) {
       "authorization": darrylAuth,
       "territory": "US",
       "api-version": "v200",
-      "device-datetime": timeInfo.time.nowUTC()
+      "device-datetime": timeInfo.time.nowFormatted()
     },
   };
   // location is stored as a lat & long variable
